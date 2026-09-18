@@ -208,6 +208,48 @@ test('layer colors and enabled state persist across fixed slots', async ({ page 
   await expect(page.getByLabel('Kolor warstwy 3')).toHaveValue('#00aaff');
 });
 
+test('note colours and timbres persist while harmony reacts in every visual view', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('switch', { name: 'Dron tonalny' }).click();
+  await page.locator('#root').selectOption('0');
+  await page.locator('#chord').selectOption('triad');
+  await page.locator('.note-palette summary').click();
+  await expect(page.locator('.note-palette')).toHaveAttribute('open', '');
+  await page.getByLabel('Kolor nuty C', { exact: true }).fill('#22aaff');
+  await expect(page.locator('.note-palette')).toHaveAttribute('open', '');
+  await page.getByLabel('Barwa nuty C', { exact: true }).selectOption('sawtooth');
+
+  await expect(page.locator('#visual .radial-harmony')).toHaveCount(1);
+  await expect(page.locator('#visual [id^="harmony-note-"]')).toHaveCount(3);
+  const restingTransform = await page.locator('#visual #harmony-field').getAttribute('transform');
+  await page.getByRole('button', { name: 'Start', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Pauza', exact: true })).toBeVisible();
+  await expect
+    .poll(() => page.locator('#visual #harmony-field').getAttribute('transform'))
+    .not.toBe(restingTransform);
+  await page.screenshot({ path: 'test-results/harmony-circle.png', fullPage: true });
+
+  await page.getByRole('button', { name: 'Oś czasu', exact: true }).click();
+  await expect(page.locator('#visual .harmony-aurora')).toHaveCount(3);
+  await expect(page.locator('#visual #harmony-focus')).toHaveAttribute('fill', /#[0-9a-f]{6}/);
+  await page.screenshot({ path: 'test-results/harmony-timeline.png', fullPage: true });
+
+  await page.getByRole('button', { name: 'Wielokąty', exact: true }).click();
+  await expect(page.locator('#visual .radial-harmony')).toHaveCount(1);
+  await page.screenshot({ path: 'test-results/harmony-polygons.png', fullPage: true });
+  await page.locator('#stop').click();
+  await page.reload();
+  await page.locator('.note-palette summary').click();
+  await expect(page.getByLabel('Kolor nuty C', { exact: true })).toHaveValue('#22aaff');
+  await expect(page.getByLabel('Barwa nuty C', { exact: true })).toHaveValue('sawtooth');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: 'test-results/harmony-mobile-390.png', fullPage: true });
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.screenshot({ path: 'test-results/harmony-mobile-320.png', fullPage: true });
+});
+
 test('visual motion switches between one pointer and smooth layer runners in every view', async ({
   page,
 }) => {

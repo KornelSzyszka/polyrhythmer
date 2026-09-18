@@ -1093,14 +1093,14 @@ dialog::backdrop {
   mix-blend-mode: screen;
 }
 .note-palette {
-  margin-top: 18px;
+  margin-top: var(--space-lg);
   border-top: 1px solid var(--border);
-  padding-top: 13px;
+  padding-top: var(--space-md);
 }
 .note-palette summary {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-md);
   cursor: pointer;
   color: var(--text);
   font-size: 10px;
@@ -1114,18 +1114,18 @@ dialog::backdrop {
 .note-palette-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 13px;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 .note-style {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   align-items: center;
-  gap: 7px;
+  gap: var(--space-sm);
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 7px;
+  padding: var(--space-sm);
   background: color-mix(in srgb, var(--surface) 82%, transparent);
 }
 .note-style strong {
@@ -1152,7 +1152,7 @@ dialog::backdrop {
 .note-style select {
   width: 100%;
   min-width: 0;
-  padding: 6px;
+  padding: var(--space-xs);
   font-size: 10px;
 }
 @media (max-width: 900px) {

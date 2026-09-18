@@ -75,4 +75,33 @@ describe('polygon visualization', () => {
       expect(renderVisual(state)).toContain('#ff00aa');
     },
   );
+
+  it.each(['circle', 'polygons'] as const)(
+    'renders a mixed radial harmony field in %s view',
+    (visualMode) => {
+      const state = defaultSession();
+      state.drone.enabled = true;
+      state.drone.chord = 'triad';
+      state.visualMode = visualMode;
+
+      const svg = renderVisual(state);
+
+      expect(svg).toContain('id="harmony-field"');
+      expect(svg).toContain('class="harmony-field radial-harmony"');
+      expect(svg.match(/id="harmony-note-/g)).toHaveLength(3);
+      expect(svg).toContain('id="harmony-focus"');
+    },
+  );
+
+  it('renders one aurora strand per sounding chord tone on the timeline', () => {
+    const state = defaultSession();
+    state.drone.enabled = true;
+    state.drone.chord = 'triad';
+    state.visualMode = 'timeline';
+
+    const svg = renderVisual(state);
+
+    expect(svg).toContain('class="harmony-field timeline-harmony"');
+    expect(svg.match(/class="harmony-aurora"/g)).toHaveLength(3);
+  });
 });

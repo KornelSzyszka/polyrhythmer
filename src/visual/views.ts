@@ -240,10 +240,13 @@ export function animateVisual(
       const x = Math.sin(focus.note.angle) * lean;
       const y = -Math.cos(focus.note.angle) * lean;
       const scale = reduced ? 1 : 1 + energy * 0.055;
-      harmonyField.setAttribute(
-        'transform',
-        `translate(${coordinate(x)} ${coordinate(y)}) scale(${coordinate(scale)} ${coordinate(scale)}) translate(${coordinate((-240 * (scale - 1)) / scale)} ${coordinate((-240 * (scale - 1)) / scale)})`,
-      );
+      harmonyField.setAttribute('transform', `translate(${coordinate(x)} ${coordinate(y)})`);
+      harmonyField
+        .querySelector<SVGGElement>('.harmony-mist')
+        ?.setAttribute(
+          'transform',
+          `translate(240 240) scale(${coordinate(scale)}) translate(-240 -240)`,
+        );
       harmonyFocus?.setAttribute('fill', focus.note.color);
       harmonyFocus?.setAttribute('cx', coordinate(240 + Math.sin(focus.note.angle) * 54));
       harmonyFocus?.setAttribute('cy', coordinate(240 - Math.cos(focus.note.angle) * 54));

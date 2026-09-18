@@ -470,6 +470,17 @@ export const translateText = (value: string, language: Language): string => {
   const duration = source.match(/^([\d.]+) s \/ cykl$/);
   if (duration)
     return `${leading}${duration[1]} s / ${language === 'en' ? 'cycle' : language === 'de' ? 'Zyklus' : language === 'it' ? 'ciclo' : language === 'es' ? 'ciclo' : 'ciclo'}${trailing}`;
+  const noteControl = source.match(/^(Kolor|Barwa) nuty (.+)$/);
+  if (noteControl) {
+    const labels = {
+      en: noteControl[1] === 'Kolor' ? 'Colour of note' : 'Timbre of note',
+      de: noteControl[1] === 'Kolor' ? 'Farbe der Note' : 'Klangfarbe der Note',
+      it: noteControl[1] === 'Kolor' ? 'Colore della nota' : 'Timbro della nota',
+      es: noteControl[1] === 'Kolor' ? 'Color de la nota' : 'Timbre de la nota',
+      'pt-BR': noteControl[1] === 'Kolor' ? 'Cor da nota' : 'Timbre da nota',
+    } as const;
+    return `${leading}${labels[language]} ${noteControl[2]}${trailing}`;
+  }
   const rhythm = source.match(/^Rytm ([\d:]+)\. Pierwsze uderzenie na godzinie dwunastej\.$/);
   if (rhythm && language === 'en')
     return `${leading}Rhythm ${rhythm[1]}. First beat at twelve o’clock.${trailing}`;

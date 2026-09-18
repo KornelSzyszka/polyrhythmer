@@ -91,6 +91,7 @@ export class App {
   private busy = false;
   private status = 'Gotowy do gry';
   private editingPaletteId: string | null = null;
+  private notePaletteOpen = false;
   constructor(root: HTMLElement) {
     const loaded = loadSession(),
       loadedPreferences = loadPreferences();
@@ -110,6 +111,14 @@ export class App {
     root.addEventListener('click', (event) => void this.click(event));
     root.addEventListener('change', (event) => this.change(event));
     root.addEventListener('input', (event) => this.input(event));
+    root.addEventListener(
+      'toggle',
+      (event) => {
+        const details = event.target as HTMLDetailsElement;
+        if (details.classList?.contains('note-palette')) this.notePaletteOpen = details.open;
+      },
+      true,
+    );
     document.addEventListener('keydown', (event) => {
       if (event.code === 'Space' && event.target === document.body) {
         event.preventDefault();
@@ -188,7 +197,7 @@ export class App {
             .map(([v, n]) => `<option value="${v}" ${selected(s.drone.chord, v)}>${n}</option>`)
             .join('')}</select></label></div>
           <div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div>
-          <details class="note-palette"><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
+          <details class="note-palette" ${this.notePaletteOpen ? 'open' : ''}><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
             .map(
               (style, index) =>
                 `<div class="note-style"><strong>${notes[index]}</strong><label><span>Kolor</span><input id="note-color-${index}" data-note-index="${index}" type="color" value="${style.color}" aria-label="Kolor nuty ${notes[index]}"></label><label><span>Barwa</span><select id="note-timbre-${index}" data-note-index="${index}" aria-label="Barwa nuty ${notes[index]}">${NOTE_TIMBRES.map((timbre) => `<option value="${timbre}" ${selected(style.timbre, timbre)}>${timbreNames[timbre]}</option>`).join('')}</select></label></div>`,
@@ -210,6 +219,8 @@ export class App {
     </div>`;
     this.updateTransport();
     translateDom(this.root, this.preferences.language);
+    const nextNotePalette = this.root.querySelector<HTMLDetailsElement>('.note-palette');
+    if (nextNotePalette) nextNotePalette.open = this.notePaletteOpen;
     if (active) document.getElementById(active)?.focus({ preventScroll: true });
     document.dispatchEvent(new Event('app-render'));
   }
