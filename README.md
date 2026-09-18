@@ -1,59 +1,57 @@
 # Polyrhythmer
 
-Lokalny metronom polirytmiczny z wizualizacją SVG, dronem tonalnym i obsługą offline. Vanilla TypeScript + Vite; bez backendu, kont, analityki i zależności runtime.
+A local polyrhythmic metronome with SVG visualization, a tonal drone, and offline support. Vanilla TypeScript + Vite; no backend, accounts, analytics, or runtime dependencies.
 
-## Uruchomienie
+## Running locally
 
-Pełna instrukcja z katalogiem, komendami, zatrzymaniem i krokami UI: [Uruchom i przetestuj](docs/TRY_IT.md).
-
-Wymagany Node.js 22.12+ (sprawdzono na 24.16).
+Requirements: Node.js 22.12 or newer (verified with 24.16).
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-Tryb produkcyjny, w tym service worker:
+For a production build, including the service worker:
 
 ```powershell
 npm run build
 npm run preview
 ```
 
-Otwórz adres wyświetlony przez Vite. Poczekaj na **Gotowy offline** przed odłączeniem sieci. Service worker jest wyłączony w trybie `dev`.
+Open the URL printed by Vite. Wait for **Ready offline** before disconnecting from the network. The service worker is disabled in development mode.
 
-## Obsługa
+## Features
 
-- Presety 3:2, 4:3, 5:4, 7:4 i 7:5; od 2 do 4 warstw, od 1 do 16 uderzeń każdej warstwy.
-- Tempo 20–300 BPM, tap tempo, cykl 1–16 ćwierćnut. Przy 120 BPM i cyklu 4 ćwierćnut pełny obrót trwa 2 sekundy. Liczby warstw dzielą ten wspólny czas.
-- Start/Pauza zachowuje pozycję. Stop wraca do początku. Spacja steruje transportem, kiedy fokus jest na tle strony.
-- Każda warstwa ma barwę, głośność, akcent, panoramę, mute i solo. Mute ma pierwszeństwo przed solo.
-- Dron gra wraz z transportem. Wybierz ton, oktawę, harmonię, tryb, filtr i szerokość stereo. Tryb określa tercję przy harmonii „Trójdźwięk”.
-- Okrąg, oś czasu i wielokąty pokazują ten sam cykl. W widoku wielokątów liczba wierzchołków odpowiada liczbie uderzeń warstwy. Przełącznik „Ruch” wybiera jedną wspólną wskazówkę albo osobną płynną kropkę dla każdej warstwy; rozwijana tabela podaje dokładne kroki uderzeń.
-- Konfiguracja zapisuje się automatycznie na urządzeniu. Odtwarzanie nigdy nie wznawia się samo po odświeżeniu.
+- Presets 3:2, 4:3, 5:4, 7:4, and 7:5; 2–4 layers, with 1–16 beats per layer.
+- Tempo from 20–300 BPM, tap tempo, and a 1–16 quarter-note cycle. At 120 BPM with a four-quarter-note cycle, one full rotation takes two seconds. Layer counts divide this shared duration.
+- Start/Pause preserves the current position. Stop returns to the beginning. Space controls transport when focus is on the page background.
+- Each layer has tone, volume, accent, pan, mute, and solo controls. Mute takes precedence over solo.
+- The drone follows the transport. Choose the root, octave, harmony, mode, filter, and stereo width. The mode determines the third in Triad harmony.
+- The circle, timeline, and polygons show the same cycle. Polygon vertex count matches each layer's beat count. The Motion switch chooses one shared indicator or a separate smooth dot for every layer; the expanded table shows exact beat steps.
+- Configuration is saved automatically on the device. Playback never resumes automatically after a refresh.
 
-## Architektura
+## Architecture
 
 ```text
-UI → serializowalny SessionState → AudioEngine
+UI → serializable SessionState → AudioEngine
                                   ├─ TransportClock → Scheduler → ClickVoices
                                   └─ DroneEngine
-AudioContext.currentTime → TransportClock → wizualizacja SVG
-SessionState ↔ localStorage (walidacja wersji i zakresów)
+AudioContext.currentTime → TransportClock → SVG visualization
+SessionState ↔ localStorage (version and range validation)
 ```
 
-- `src/domain`: czyste obliczenia gcd/lcm, eventów i harmonii oraz walidacja konfiguracji.
-- `src/transport/clock.ts`: pozycja cyklu i mapowanie jej na czas audio; tempo zachowuje fazę.
-- `src/audio`: jeden leniwie tworzony AudioContext; scheduler budzi się co 25 ms i planuje 100 ms naprzód. Timer nie jest zegarem dźwięku. Przegapione eventy po throttlingu są pomijane, aby uniknąć serii zaległych kliknięć.
-- Zmiana rytmu anuluje stare głosy, stosuje krótki fade i planuje nowe od zachowanej pozycji z 15 ms marginesem. Może wystąpić krótka przerwa przy edycji. Dron ma stałe trzy oscylatory i LFO, interpoluje parametry i rozłącza node’y po wygaszeniu.
-- `src/visual`: SVG aktualizowany przez requestAnimationFrame, wyłącznie jako odbiorca pozycji zegara.
-- `src/ui`: kontrolki, walidacja i koordynacja; nie tworzy node’ów audio.
-- `src/persistence`: uszkodzony lub nieznany zapis wraca do 3:2. Błąd zapisu nie zatrzymuje aplikacji.
-- `scripts/build-sw.mjs`: precache kompletu zasobów buildu, identyfikator cache na podstawie treści. Aktualizacja wymaga działania użytkownika po zatrzymaniu transportu. Stare cache są zachowywane dla otwartych kart; można je wyczyścić przez ustawienia danych witryny.
+- `src/domain`: pure gcd/lcm, event, and harmony calculations plus configuration validation.
+- `src/transport/clock.ts`: cycle position and audio-time mapping; tempo changes preserve phase.
+- `src/audio`: one lazily created AudioContext; the scheduler wakes every 25 ms and plans 100 ms ahead. Timers are not the audio clock. Events missed during throttling are skipped to avoid a burst of overdue clicks.
+- Rhythm changes cancel old voices, apply a short fade, and schedule new ones from the preserved position with a 15 ms margin. Editing may cause a short pause. The drone uses three fixed oscillators and an LFO, interpolates parameters, and disconnects nodes after release.
+- `src/visual`: SVG updated through requestAnimationFrame, only as a consumer of clock position.
+- `src/ui`: controls, validation, and coordination; it does not create audio nodes.
+- `src/persistence`: corrupt or unknown storage falls back to 3:2. Storage errors do not stop the application.
+- `scripts/build-sw.mjs`: precaches all build resources and derives the cache identifier from their contents. Updates require user action after transport stops. Old caches are retained for open tabs and can be cleared through site data settings.
 
-Siatka LCM służy do opisu i tabeli; scheduler używa rzadkiej listy faktycznych uderzeń, więc nawet 11:13:15:16 nie tworzy dziesiątek tysięcy pustych eventów.
+The LCM grid is used for descriptions and the table; the scheduler uses a sparse list of actual beats, so patterns such as 11:13:15:16 do not create tens of thousands of empty events.
 
-## Weryfikacja
+## Verification
 
 ```powershell
 npm test
@@ -63,29 +61,18 @@ npm run test:e2e
 npm audit
 ```
 
-Unit testy sprawdzają siatkę rytmu, kolejność i granice okien schedulera, strojenie, walidację i ciągłość fazy. Playwright sprawdza rzeczywisty produkcyjny build: transport, dron, zwalnianie oscylatorów, limity, błędny storage, układ mobilny, odświeżenie i start offline.
+Unit tests cover the rhythm grid, scheduler ordering and window boundaries, tuning, validation, and phase continuity. Playwright tests the production build: transport, drone, oscillator cleanup, limits, invalid storage, responsive layout, refresh, and offline startup.
 
-Zrzuty ekranu: `test-results/desktop.png` i `test-results/mobile.png` po testach E2E.
+E2E screenshots are written to `test-results/desktop.png` and `test-results/mobile.png`.
 
-## Publikacja i instalacja
+## Publishing and installation
 
-Publikuj zawartość `dist/` na hostingu statycznym z HTTPS (np. GitHub Pages lub Cloudflare Pages). Build używa względnych ścieżek, więc może działać w podkatalogu. Serwuj `sw.js` bez długiego cache HTTP; dla `assets/*` można ustawić cache immutable. Nie ma routingu wymagającego reguł SPA.
+Publish `dist/` on a static HTTPS host such as GitHub Pages or Cloudflare Pages. The build uses relative paths and can run from a subdirectory. Serve `sw.js` without a long HTTP cache; `assets/*` may use immutable caching. No SPA fallback rule is required beyond the precached document.
 
-Chrome oferuje przycisk instalacji, gdy spełnione są kryteria przeglądarki. Na iOS: Safari → Udostępnij → Do ekranu początkowego. Audio wymaga gestu Start. Pierwsze pobranie musi nastąpić online, a cache może zostać usunięty przez system.
+Chrome offers an install button when browser criteria are met. On iOS, use Safari → Share → Add to Home Screen. Audio requires a Start gesture. The first load must happen online, and the system may remove the cache.
 
-## Zakres i ograniczenia
+## Scope and limitations
 
-Zaimplementowano funkcjonalny zakres MVP z dokumentu oraz tap tempo, tryby, panoramę, filtr, szerokość stereo i oś czasu. Nie zaimplementowano opcjonalnego pogłosu ani roadmapy v2/v3: biblioteki własnych presetów, importu/eksportu JSON, swingu, patternów, polimetrii, MIDI i nagrywania.
+The functional MVP scope is implemented, along with tap tempo, modes, pan, filter, stereo width, and a timeline. Optional reverb and the v2/v3 roadmap are not implemented: custom preset libraries, JSON import/export, swing, patterns, polymeter, MIDI, and recording.
 
-**Do odbioru na fizycznych urządzeniach:** Android Chrome i iOS Safari, odsłuch na głośniku/słuchawkach, Bluetooth, blokada ekranu i 30 minut ciągłej pracy. Automatyczny Chromium nie zastępuje tej części MVP-12. System operacyjny może wstrzymywać audio w tle; aplikacja pokazuje ten stan i pozwala wznowić odtwarzanie.
-
-Lista odbioru: [docs/QA.md](docs/QA.md).
-
-## Dokumentacja
-
-- [Indeks dokumentacji](docs/README.md)
-- [Architektura i przepływy](docs/ARCHITECTURE.md)
-- [Development i weryfikacja](docs/DEVELOPMENT.md)
-- [Odbiór na urządzeniach](docs/QA.md)
-
-Wzorce techniczne: [planowanie Web Audio w MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques), [aktualizacja service workera](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting), [Vite](https://vite.dev/guide/static-deploy).
+**Physical-device acceptance remains required:** Android Chrome and iOS Safari, speaker/headphone listening, Bluetooth, screen lock, and 30 minutes of continuous operation. Automated Chromium does not replace this part of MVP-12. The operating system may suspend background audio; the application reports this state and lets the user resume playback.
