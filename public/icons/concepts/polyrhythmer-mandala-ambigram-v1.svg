@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title description">
+  <title id="title">Polyrhythmer mandala ambigram concept</title>
+  <desc id="description">A minimal circular mark containing a point-symmetric construction of the word polyrhythmer.</desc>
+
+  <defs>
+    <clipPath id="upper-half">
+      <rect x="0" y="0" width="1200" height="600" />
+    </clipPath>
+    <clipPath id="lower-half">
+      <rect x="0" y="600" width="1200" height="600" />
+    </clipPath>
+    <path id="quarter-arc" d="M600 142 A458 458 0 0 1 1058 600" />
+    <text
+      id="word"
+      x="600"
+      y="600"
+      text-anchor="middle"
+      dominant-baseline="central"
+      textLength="770"
+      lengthAdjust="spacingAndGlyphs"
+      font-family="Inter, Segoe UI, Arial, sans-serif"
+      font-size="142"
+      font-weight="700"
+      letter-spacing="-5"
+    >polyrhythmer</text>
+  </defs>
+
+  <rect width="1200" height="1200" rx="252" fill="#171b19" />
+
+  <g fill="none" stroke="#e4b46a" stroke-linecap="round">
+    <circle cx="600" cy="600" r="458" stroke-width="10" />
+    <circle cx="600" cy="600" r="414" stroke-width="3" opacity="0.46" />
+    <use href="#quarter-arc" stroke-width="18" />
+    <use href="#quarter-arc" stroke-width="18" transform="rotate(180 600 600)" />
+  </g>
+
+  <g fill="#e4b46a">
+    <circle cx="600" cy="142" r="17" />
+    <circle cx="1058" cy="600" r="17" />
+    <circle cx="600" cy="1058" r="17" />
+    <circle cx="142" cy="600" r="17" />
+  </g>
+
+  <g fill="#eeecdf">
+    <use href="#word" clip-path="url(#upper-half)" />
+    <use href="#word" clip-path="url(#lower-half)" transform="rotate(180 600 600)" />
+  </g>
+
+  <g fill="#171b19">
+    <rect x="198" y="594" width="804" height="12" rx="6" />
+  </g>
+
+  <g fill="#e4b46a">
+    <circle cx="182" cy="600" r="7" />
+    <circle cx="1018" cy="600" r="7" />
+    <circle cx="600" cy="600" r="9" />
+  </g>
+</svg>

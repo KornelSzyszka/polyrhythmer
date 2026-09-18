@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title description">
+  <title id="title">Polyrhythmer paired-glyph mandala ambigram</title>
+  <desc id="description">A rotationally symmetric mandala built from six paired glyphs spelling polyrhythmer in both 180-degree orientations.</desc>
+
+  <defs>
+    <style>
+      .glyph {
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        font-size: 126px;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: central;
+      }
+      .primary { fill: #eeecdf; }
+      .inverse {
+        fill: none;
+        stroke: #e4b46a;
+        stroke-width: 4;
+        stroke-linejoin: round;
+      }
+    </style>
+
+    <g id="pair-pr">
+      <text class="glyph primary" x="270" y="600">p</text>
+      <text class="glyph inverse" x="270" y="600" transform="rotate(180 270 600)">r</text>
+    </g>
+    <g id="pair-oe">
+      <text class="glyph primary" x="330" y="600">o</text>
+      <text class="glyph inverse" x="330" y="600" transform="rotate(180 330 600)">e</text>
+    </g>
+    <g id="pair-lm">
+      <text class="glyph primary" x="390" y="600">l</text>
+      <text class="glyph inverse" x="390" y="600" transform="rotate(180 390 600)">m</text>
+    </g>
+    <g id="pair-yh">
+      <text class="glyph primary" x="450" y="600">y</text>
+      <text class="glyph inverse" x="450" y="600" transform="rotate(180 450 600)">h</text>
+    </g>
+    <g id="pair-rt">
+      <text class="glyph primary" x="510" y="600">r</text>
+      <text class="glyph inverse" x="510" y="600" transform="rotate(180 510 600)">t</text>
+    </g>
+    <g id="pair-hy">
+      <text class="glyph primary" x="570" y="600">h</text>
+      <text class="glyph inverse" x="570" y="600" transform="rotate(180 570 600)">y</text>
+    </g>
+
+    <g id="left-half">
+      <use href="#pair-pr" />
+      <use href="#pair-oe" />
+      <use href="#pair-lm" />
+      <use href="#pair-yh" />
+      <use href="#pair-rt" />
+      <use href="#pair-hy" />
+    </g>
+  </defs>
+
+  <rect width="1200" height="1200" rx="252" fill="#171b19" />
+
+  <g fill="none" stroke="#e4b46a" stroke-linecap="round">
+    <circle cx="600" cy="600" r="458" stroke-width="9" />
+    <circle cx="600" cy="600" r="414" stroke-width="2" opacity="0.42" />
+    <path d="M600 142 A458 458 0 0 1 1058 600" stroke-width="17" />
+    <path d="M600 1058 A458 458 0 0 1 142 600" stroke-width="17" />
+  </g>
+
+  <g fill="#e4b46a">
+    <circle cx="600" cy="142" r="16" />
+    <circle cx="1058" cy="600" r="16" />
+    <circle cx="600" cy="1058" r="16" />
+    <circle cx="142" cy="600" r="16" />
+  </g>
+
+  <use href="#left-half" />
+  <use href="#left-half" transform="rotate(180 600 600)" />
+
+  <g fill="#e4b46a">
+    <circle cx="600" cy="600" r="7" />
+  </g>
+</svg>
