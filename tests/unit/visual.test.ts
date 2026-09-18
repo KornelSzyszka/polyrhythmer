@@ -30,38 +30,49 @@ describe('polygon visualization', () => {
     expect(svg).toContain('class="polygon-low-count"');
   });
 
-  it.each(['circle', 'timeline', 'polygons'] as const)('replaces the pointer with one runner per layer in %s view', visualMode => {
-    const state = defaultSession();
-    state.visualMode = visualMode;
+  it.each(['circle', 'timeline', 'polygons'] as const)(
+    'replaces the pointer with one runner per layer in %s view',
+    (visualMode) => {
+      const state = defaultSession();
+      state.visualMode = visualMode;
 
-    const pointer = renderVisual(state, { visualMotion: 'pointer' });
-    const runners = renderVisual(state, { visualMotion: 'runners' });
+      const pointer = renderVisual(state, { visualMotion: 'pointer' });
+      const runners = renderVisual(state, { visualMotion: 'runners' });
 
-    expect(pointer).toContain(`id="${visualMode === 'timeline' ? 'timeline' : visualMode === 'circle' ? 'circle' : 'polygon'}-head"`);
-    expect(pointer.match(/class="visual-runner/g)).toBeNull();
-    expect(runners).not.toContain('-head"');
-    expect(runners.match(/class="visual-runner/g)).toHaveLength(2);
-  });
+      expect(pointer).toContain(
+        `id="${visualMode === 'timeline' ? 'timeline' : visualMode === 'circle' ? 'circle' : 'polygon'}-head"`,
+      );
+      expect(pointer.match(/class="visual-runner/g)).toBeNull();
+      expect(runners).not.toContain('-head"');
+      expect(runners.match(/class="visual-runner/g)).toHaveLength(2);
+    },
+  );
 
-  it.each(['circle', 'timeline', 'polygons'] as const)('renders the configured support subdivision in %s view', visualMode => {
-    const state = defaultSession();
-    state.visualMode = visualMode;
+  it.each(['circle', 'timeline', 'polygons'] as const)(
+    'renders the configured support subdivision in %s view',
+    (visualMode) => {
+      const state = defaultSession();
+      state.visualMode = visualMode;
 
-    expect(renderVisual(state).match(/data-subdivision-beat=/g)).toBeNull();
+      expect(renderVisual(state).match(/data-subdivision-beat=/g)).toBeNull();
 
-    state.cycleBeats = 4;
-    state.subdivision = 3;
-    const svg = renderVisual(state);
+      state.cycleBeats = 4;
+      state.subdivision = 3;
+      const svg = renderVisual(state);
 
-    expect(svg.match(/data-subdivision-beat=/g)).toHaveLength(12);
-    expect(svg.match(/subdivision-marker subdivision-accent/g)).toHaveLength(4);
-  });
+      expect(svg.match(/data-subdivision-beat=/g)).toHaveLength(12);
+      expect(svg.match(/subdivision-marker subdivision-accent/g)).toHaveLength(4);
+    },
+  );
 
-  it.each(['circle', 'timeline', 'polygons'] as const)('uses the persistent layer color in %s view', visualMode => {
-    const state = defaultSession();
-    state.visualMode = visualMode;
-    state.layers[0].color = '#ff00aa';
+  it.each(['circle', 'timeline', 'polygons'] as const)(
+    'uses the persistent layer color in %s view',
+    (visualMode) => {
+      const state = defaultSession();
+      state.visualMode = visualMode;
+      state.layers[0].color = '#ff00aa';
 
-    expect(renderVisual(state)).toContain('#ff00aa');
-  });
+      expect(renderVisual(state)).toContain('#ff00aa');
+    },
+  );
 });

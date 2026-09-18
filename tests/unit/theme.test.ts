@@ -1,15 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { defaultSession } from '../../src/domain/session';
-import { BUILT_IN_PALETTES, contrastRatio, createVisualTheme, LAYER_COLORS } from '../../src/theme/palette';
+import {
+  BUILT_IN_PALETTES,
+  contrastRatio,
+  createVisualTheme,
+  LAYER_COLORS,
+} from '../../src/theme/palette';
 import { renderVisual } from '../../src/visual/views';
 
 describe('theme tokens', () => {
   it('provides three ordinary palettes and a high-contrast variant', () => {
-    expect(BUILT_IN_PALETTES.map(palette => palette.id)).toEqual(['forest', 'slate', 'dawn', 'high-contrast']);
+    expect(BUILT_IN_PALETTES.map((palette) => palette.id)).toEqual([
+      'forest',
+      'slate',
+      'dawn',
+      'high-contrast',
+    ]);
     expect(LAYER_COLORS).toHaveLength(12);
     for (const palette of BUILT_IN_PALETTES) {
-      expect(contrastRatio(palette.colors.text, palette.colors.background)).toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(palette.colors.accent, palette.colors.background)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(palette.colors.text, palette.colors.background)).toBeGreaterThanOrEqual(
+        4.5,
+      );
+      expect(
+        contrastRatio(palette.colors.accent, palette.colors.background),
+      ).toBeGreaterThanOrEqual(4.5);
     }
   });
 

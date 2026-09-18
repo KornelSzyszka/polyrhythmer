@@ -12,13 +12,52 @@
   --status-text: var(--text);
 }
 
-body { background: var(--background); color: var(--text); }
-button, input, select { color: inherit; }
-button { border-color: var(--control-border); }
-button:hover:not(:disabled) { background: var(--control-hover-background); border-color: var(--control-hover-border); }
-button[aria-pressed=true] { background: var(--control-selected-background); border-color: var(--control-selected-border); }
-input, select { background: var(--control-background); border-color: var(--control-border); }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline-color: var(--focus); }
-.panel, dialog { background: var(--surface); border-color: var(--border); color: var(--text); }
-.play, .developer-actions #save-palette { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.offline-badge { background: var(--status-background); color: var(--status-text); border-color: var(--border); }
+body {
+  background: var(--background);
+  color: var(--text);
+}
+button,
+input,
+select {
+  color: inherit;
+}
+button {
+  border-color: var(--control-border);
+}
+button:hover:not(:disabled) {
+  background: var(--control-hover-background);
+  border-color: var(--control-hover-border);
+}
+button[aria-pressed='true'] {
+  background: var(--control-selected-background);
+  border-color: var(--control-selected-border);
+}
+input,
+select {
+  background: var(--control-background);
+  border-color: var(--control-border);
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline-color: var(--focus);
+}
+.panel,
+dialog {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+.play,
+.developer-actions #save-palette {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.offline-badge {
+  background: var(--status-background);
+  color: var(--status-text);
+  border-color: var(--border);
+}

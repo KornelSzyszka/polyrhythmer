@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { eventsInWindow, rhythmEvents } from '../../src/domain/rhythm';
-import { isSession, MAX_LAYERS, MAX_MASTER_GAIN, type RhythmLayer, type SessionState } from '../../src/domain/session';
+import {
+  isSession,
+  MAX_LAYERS,
+  MAX_MASTER_GAIN,
+  type RhythmLayer,
+  type SessionState,
+} from '../../src/domain/session';
 import { Scheduler } from '../../src/audio/scheduler';
 import type { ClickVoices } from '../../src/audio/voices';
 import { TransportClock } from '../../src/transport/clock';
@@ -20,6 +26,7 @@ const layer = (
   pan: 0,
   muted: false,
   solo: false,
+  enabled: true,
   ...overrides,
 });
 
@@ -28,7 +35,12 @@ const sessionFixture = (overrides: Partial<SessionState> = {}): SessionState => 
   bpm: 90,
   cycleBeats: 4,
   subdivision: 0,
-  layers: [layer('three', 3), layer('two', 2, { sound: 'sine' })],
+  layers: [
+    layer('three', 3),
+    layer('two', 2, { sound: 'sine' }),
+    layer('five', 5, { enabled: false }),
+    layer('seven', 7, { enabled: false }),
+  ],
   drone: {
     enabled: false,
     root: 2,
@@ -55,6 +67,8 @@ describe('SessionState v1 characterization', () => {
       layers: [
         layer('min-left', 1, { gain: 0, pan: -1 }),
         layer('min-right', 1, { gain: 0, pan: -1 }),
+        layer('min-third', 1, { gain: 0, pan: -1, enabled: false }),
+        layer('min-fourth', 1, { gain: 0, pan: -1, enabled: false }),
       ],
       drone: {
         enabled: false,
@@ -72,7 +86,7 @@ describe('SessionState v1 characterization', () => {
       cycleBeats: 16,
       masterGain: MAX_MASTER_GAIN,
       layers: Array.from({ length: MAX_LAYERS }, (_, index) =>
-        layer(`max-${index}`, 16, { gain: 1, pan: 1, sound: 'bell' }),
+        layer(`max-${index}`, 16, { gain: 1, pan: 1, sound: 'bell', enabled: index < 2 }),
       ),
       drone: {
         enabled: true,
@@ -151,9 +165,11 @@ describe('v1 rhythm event characterization', () => {
     ];
 
     expect(partitioned).toEqual(whole);
-    expect(eventsInWindow(events, 0, 0.5).some(event => event.cyclePosition === 0.5)).toBe(false);
-    expect(eventsInWindow(events, 0.5, 1).filter(event => event.cyclePosition === 0.5)).toHaveLength(1);
-    expect(new Set(whole.map(event => `${event.layerId}:${event.cyclePosition}`))).toHaveLength(
+    expect(eventsInWindow(events, 0, 0.5).some((event) => event.cyclePosition === 0.5)).toBe(false);
+    expect(
+      eventsInWindow(events, 0.5, 1).filter((event) => event.cyclePosition === 0.5),
+    ).toHaveLength(1);
+    expect(new Set(whole.map((event) => `${event.layerId}:${event.cyclePosition}`))).toHaveLength(
       whole.length,
     );
   });
@@ -209,7 +225,7 @@ describe('v1 scheduler characterization', () => {
       { layerId: 'three', beat: 0, at: 20 },
       { layerId: 'two', beat: 0, at: 20 },
     ]);
-    expect(played.every(event => event.at >= context.currentTime)).toBe(true);
+    expect(played.every((event) => event.at >= context.currentTime)).toBe(true);
 
     scheduler.stop();
   });

@@ -5,14 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build && node scripts/build-sw.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"*.config.ts\"",
+    "format:check": "prettier --check \"src/**/*.{ts,css}\" \"tests/**/*.ts\" \"*.{json,ts,mjs}\" \"docs/DEVELOPMENT.md\"",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
+    "check:e2e": "npm run build && npm run test:e2e",
+    "build": "npm run typecheck && vite build && node scripts/build-sw.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
+    "@types/node": "^24.13.5",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.8",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
     "vite": "^7.3.1",
     "vitest": "^4.1.11"
   }

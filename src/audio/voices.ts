@@ -1,9 +1,19 @@
 import type { RhythmLayer } from '../domain/session';
-interface Voice { oscillator: OscillatorNode; gain: GainNode; pan?: StereoPannerNode; time: number }
+interface Voice {
+  oscillator: OscillatorNode;
+  gain: GainNode;
+  pan?: StereoPannerNode;
+  time: number;
+}
 export class ClickVoices {
   private voices = new Set<Voice>();
-  constructor(private context: AudioContext, private output: AudioNode) {}
-  get activeCount() { return this.voices.size; }
+  constructor(
+    private context: AudioContext,
+    private output: AudioNode,
+  ) {}
+  get activeCount() {
+    return this.voices.size;
+  }
   play(layer: RhythmLayer, beat: number, time: number) {
     const oscillator = this.context.createOscillator();
     const gain = this.context.createGain();
@@ -12,40 +22,50 @@ export class ClickVoices {
     const frequency = { wood: 750, sine: 1150, bell: 1650 }[layer.sound] * (accent ? 1.4 : 1);
     oscillator.type = layer.sound === 'wood' ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(frequency, time);
-    oscillator.frequency.exponentialRampToValueAtTime(frequency * .65, time + .045);
+    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.65, time + 0.045);
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(layer.gain * (accent ? .24 : .16), time + .002);
-    gain.gain.exponentialRampToValueAtTime(.0001, time + .065);
-    gain.gain.linearRampToValueAtTime(0, time + .075);
+    gain.gain.linearRampToValueAtTime(layer.gain * (accent ? 0.24 : 0.16), time + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.065);
+    gain.gain.linearRampToValueAtTime(0, time + 0.075);
     pan.pan.value = layer.pan;
     oscillator.connect(gain).connect(pan).connect(this.output);
     const voice = { oscillator, gain, pan, time };
     this.voices.add(voice);
     oscillator.onended = () => {
-      oscillator.disconnect(); gain.disconnect(); pan.disconnect(); this.voices.delete(voice);
+      oscillator.disconnect();
+      gain.disconnect();
+      pan.disconnect();
+      this.voices.delete(voice);
     };
-    oscillator.start(time); oscillator.stop(time + .08);
+    oscillator.start(time);
+    oscillator.stop(time + 0.08);
   }
   playReference(time: number, accent: boolean) {
     const oscillator = this.context.createOscillator();
     const gain = this.context.createGain();
     const frequency = accent ? 520 : 380;
-    oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(frequency, time);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, time);
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(accent ? .12 : .055, time + .001);
-    gain.gain.exponentialRampToValueAtTime(.0001, time + .045);
-    gain.gain.linearRampToValueAtTime(0, time + .05);
+    gain.gain.linearRampToValueAtTime(accent ? 0.12 : 0.055, time + 0.001);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
+    gain.gain.linearRampToValueAtTime(0, time + 0.05);
     oscillator.connect(gain).connect(this.output);
     const voice = { oscillator, gain, time };
     this.voices.add(voice);
-    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); this.voices.delete(voice); };
-    oscillator.start(time); oscillator.stop(time + .055);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      gain.disconnect();
+      this.voices.delete(voice);
+    };
+    oscillator.start(time);
+    oscillator.stop(time + 0.055);
   }
   cancel(now: number) {
     for (const voice of this.voices) {
       voice.gain.gain.cancelAndHoldAtTime(now);
-      voice.gain.gain.linearRampToValueAtTime(0, now + .01);
-      voice.oscillator.stop(now + .012);
+      voice.gain.gain.linearRampToValueAtTime(0, now + 0.01);
+      voice.oscillator.stop(now + 0.012);
     }
   }
 }

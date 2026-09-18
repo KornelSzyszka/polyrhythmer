@@ -6,12 +6,14 @@ import { defaultPreferences, isPreferences } from '../../src/persistence/prefere
 describe('language preferences', () => {
   it('defaults to English and accepts every supported locale', () => {
     expect(defaultPreferences().language).toBe('en');
-    for (const language of PREFERENCE_LANGUAGES) expect(isPreferences({ ...defaultPreferences(), language })).toBe(true);
+    for (const language of PREFERENCE_LANGUAGES)
+      expect(isPreferences({ ...defaultPreferences(), language })).toBe(true);
   });
 
   it('translates the primary heading and transport labels outside Polish', () => {
     expect(translateText('Znajdź wspólny puls', 'en')).toBe('Find the common pulse');
-    for (const language of PREFERENCE_LANGUAGES.filter(language => language !== 'pl')) expect(translateText('Pauza', language)).not.toBe('Pauza');
+    for (const language of PREFERENCE_LANGUAGES.filter((language) => language !== 'pl'))
+      expect(translateText('Pauza', language)).not.toBe('Pauza');
   });
 
   it('translates selectable drone values and dynamic rhythm counters', () => {
