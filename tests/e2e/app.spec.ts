@@ -21,7 +21,8 @@ test('complete practice session persists and works offline', async ({ page, cont
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Znajdź wspólny puls.' })).toBeVisible();
+  await expect(page.locator('.intro')).toHaveCount(0);
+  await expect(page.locator('.section-tag')).toContainText('6 wspólnych kroków');
   await page.getByRole('button', { name: '5:4', exact: true }).click();
   await page.getByLabel('TEMPO', { exact: true }).fill('120');
   await page.getByLabel('TEMPO', { exact: true }).press('Tab');

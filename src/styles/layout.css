@@ -15,12 +15,6 @@
   align-items: center;
   gap: 16px;
 }
-.intro {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 44px 0 32px;
-}
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(325px, 1fr);
@@ -96,10 +90,6 @@ footer > span:last-child {
   .shell {
     max-width: 1280px;
   }
-  .intro {
-    padding-top: 52px;
-    padding-bottom: 40px;
-  }
   #visual {
     max-width: 520px;
   }
@@ -139,9 +129,6 @@ footer > span:last-child {
   .drone-selects label:last-child {
     grid-column: 1/-1;
   }
-  .session-number {
-    display: none;
-  }
   footer > span:last-child {
     display: none;
   }
@@ -171,18 +158,6 @@ footer > span:last-child {
   .offline-badge {
     padding: 6px 8px;
     font-size: 9px;
-  }
-  .intro {
-    padding: 32px 0 24px;
-  }
-  h1 {
-    font-size: 37px;
-  }
-  .intro .eyebrow {
-    font-size: 8px;
-  }
-  .subtitle {
-    font-size: 12px;
   }
   .workspace {
     grid-template-columns: 1fr;

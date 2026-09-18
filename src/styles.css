@@ -104,21 +104,10 @@ input[type='range'] {
 input[type='checkbox'] {
   accent-color: var(--gold);
 }
-h1,
 h2,
 h3,
 p {
   margin: 0;
-}
-h1 {
-  font-family: Georgia, serif;
-  font-weight: 400;
-  font-size: 46px;
-  letter-spacing: -1.6px;
-  line-height: 1.2;
-}
-h1 > span {
-  color: var(--gold);
 }
 h2 {
   font-weight: 500;
@@ -189,27 +178,6 @@ h3 {
   width: 29px;
   height: 29px;
   font-size: 13px;
-}
-.subtitle {
-  margin-top: 13px;
-  color: var(--muted);
-  font-size: 14px;
-}
-.intro .eyebrow {
-  margin-bottom: 15px;
-}
-.session-number {
-  font:
-    10px ui-monospace,
-    monospace;
-  color: #d1c6ac;
-  line-height: 2;
-  text-align: right;
-  letter-spacing: 1px;
-}
-.session-number span {
-  letter-spacing: 0;
-  color: var(--muted);
 }
 .panel-top {
   display: flex;

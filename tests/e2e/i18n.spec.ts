@@ -5,12 +5,12 @@ test('English is the default and each supported language persists without pausin
 }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.getByRole('heading', { name: 'Find the common pulse.' })).toBeVisible();
-  await expect(page.locator('.session-number')).toContainText('SESSION / 001');
+  await expect(page.locator('.intro')).toHaveCount(0);
+  await expect(page.locator('.section-tag')).toContainText('6 common steps');
   await expect(page.locator('#mode')).toContainText('Minor');
   await expect(page.locator('#chord')).toContainText('Triad');
   await expect(page.locator('.beat-stepper').first()).toContainText('beats / cycle');
-  await expect(page.locator('.event-details summary')).toContainText('common steps');
+  await expect(page.locator('.event-details summary')).not.toContainText('common steps');
   await expect(page.locator('#cycle-counter')).toContainText('CYCLE 01');
   const textArtifacts =
     (await page.locator('body').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];

@@ -42,12 +42,6 @@ input[type='range'] {
 .quiet {
   padding: var(--space-sm) var(--space-md);
 }
-.subtitle {
-  margin-top: var(--space-md);
-}
-.intro .eyebrow {
-  margin-bottom: var(--space-md);
-}
 .panel-top {
   gap: var(--space-md);
 }
@@ -299,6 +293,7 @@ dialog hr {
 }
 .workspace {
   gap: var(--space-lg);
+  margin-top: var(--space-xl);
 }
 .instrument {
   padding: var(--space-lg);
@@ -334,13 +329,6 @@ footer {
   padding: var(--space-xl) 0;
 }
 
-@media (min-width: 1450px) {
-  .intro {
-    padding-top: var(--space-2xl);
-    padding-bottom: var(--space-xl);
-  }
-}
-
 @media (max-width: 1000px) {
   .shell {
     padding: 0 var(--space-lg);
@@ -370,9 +358,6 @@ footer {
   }
   .offline-badge {
     padding: var(--space-sm);
-  }
-  .intro {
-    padding: var(--space-xl) 0 var(--space-lg);
   }
   .instrument,
   .rhythm-panel {
