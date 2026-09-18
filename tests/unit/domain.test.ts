@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { gcd, lcm, rhythmEvents, eventsInWindow, cycleDuration, subdivisionEvents } from '../../src/domain/rhythm';
 import { midiToHz, voicing } from '../../src/domain/harmony';
-import { COLORS, defaultSession, isSession, MAX_LAYERS, newLayer } from '../../src/domain/session';
+import { defaultSession, isSession, MAX_LAYERS, newLayer } from '../../src/domain/session';
+import { LAYER_COLORS } from '../../src/theme/palette';
 import { upgradeSession } from '../../src/persistence/storage';
 import { TransportClock } from '../../src/transport/clock';
 import { defaultPreferences, isPreferences } from '../../src/persistence/preferences';
@@ -71,7 +72,7 @@ describe('session validation', () => {
   });
   it('assigns and validates a persistent color for every layer', () => {
     const session = defaultSession();
-    expect(session.layers.map(layer => layer.color)).toEqual(COLORS.slice(0, 2));
+    expect(session.layers.map(layer => layer.color)).toEqual(LAYER_COLORS.slice(0, 2));
     session.layers[0].color = '#12abEF';
     expect(isSession(session)).toBe(true);
     session.layers[0].color = '#bad';
@@ -84,7 +85,7 @@ describe('session validation', () => {
     const upgraded = upgradeSession(legacy);
 
     expect(upgraded).not.toBeNull();
-    expect(upgraded?.layers.map(layer => layer.color)).toEqual(COLORS.slice(0, 2));
+    expect(upgraded?.layers.map(layer => layer.color)).toEqual(LAYER_COLORS.slice(0, 2));
     expect(isSession(upgraded)).toBe(true);
   });
 });

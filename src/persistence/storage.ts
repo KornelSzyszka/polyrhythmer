@@ -1,10 +1,11 @@
-import { COLORS, defaultSession, isSession, type SessionState } from '../domain/session';
+import { defaultSession, isSession, type SessionState } from '../domain/session';
+import { LAYER_COLORS } from '../theme/palette';
 export const STORAGE_KEY = 'polyrhythmer.session.v1';
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 export function upgradeSession(value: unknown): SessionState | null {
   if (!object(value)) return null;
   const layers = Array.isArray(value.layers)
-    ? value.layers.map((layer, index) => object(layer) && !('color' in layer) ? { ...layer, color: COLORS[index % COLORS.length] } : layer)
+    ? value.layers.map((layer, index) => object(layer) && !('color' in layer) ? { ...layer, color: LAYER_COLORS[index % LAYER_COLORS.length] } : layer)
     : value.layers;
   const candidate = {
     ...value,

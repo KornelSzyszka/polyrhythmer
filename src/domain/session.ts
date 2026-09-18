@@ -1,5 +1,5 @@
 import { MODES, type Mode } from './harmony';
-export const COLORS = ['#e4b46a', '#81b6bf', '#c3a1d9', '#a5bd80', '#df8f6f', '#d5a6e8', '#7fc7a8', '#d8c06d', '#8fa9df', '#d98eae', '#8bc4bb', '#c5a27d'];
+import { LAYER_COLORS } from '../theme/palette';
 export const SOUNDS = ['wood', 'sine', 'bell'] as const;
 export const MAX_LAYERS = 12;
 export interface RhythmLayer {
@@ -16,7 +16,7 @@ export interface SessionState {
 }
 export const newLayer = (beats: number, index: number): RhythmLayer => ({
   id: crypto.randomUUID(), beatsPerCycle: beats, sound: index % 2 ? 'sine' : 'wood',
-  color: COLORS[index % COLORS.length], accentFirst: true, gain: .65, pan: 0, muted: false, solo: false,
+  color: LAYER_COLORS[index % LAYER_COLORS.length], accentFirst: true, gain: .65, pan: 0, muted: false, solo: false,
 });
 export const defaultSession = (): SessionState => ({
   version: 1, bpm: 90, cycleBeats: 4, subdivision: 0, layers: [newLayer(3, 0), newLayer(2, 1)],

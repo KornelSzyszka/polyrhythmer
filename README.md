@@ -25,7 +25,7 @@ Open the URL printed by Vite. Wait for **Ready offline** before disconnecting fr
 - Presets 3:2, 4:3, 5:4, 7:4, and 7:5; 2–4 layers, with 1–16 beats per layer.
 - Tempo from 20–300 BPM, tap tempo, and a 1–16 quarter-note cycle. At 120 BPM with a four-quarter-note cycle, one full rotation takes two seconds. Layer counts divide this shared duration.
 - Start/Pause preserves the current position. Stop returns to the beginning. Space controls transport when focus is on the page background.
-- Each layer has tone, volume, accent, pan, mute, and solo controls. Mute takes precedence over solo.
+- The compact layer panel exposes the two controls needed in the current iteration: layer color and beats per cycle. Four layer cards fit without changing the panel size.
 - The drone follows the transport. Choose the root, octave, harmony, mode, filter, and stereo width. The mode determines the third in Triad harmony.
 - The circle, timeline, and polygons show the same cycle. Polygon vertex count matches each layer's beat count. The Motion switch chooses one shared indicator or a separate smooth dot for every layer; the expanded table shows exact beat steps.
 - Configuration is saved automatically on the device. Playback never resumes automatically after a refresh.

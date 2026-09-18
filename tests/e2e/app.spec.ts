@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('polyrhythmer.preferences.v1')) localStorage.setItem('polyrhythmer.preferences.v1', JSON.stringify({
+      version: 1, language: 'pl', developerMode: false, visualMotion: 'pointer', activePaletteId: 'forest', palettes: [],
+    }));
+  });
+});
+
 test('complete practice session persists and works offline', async ({ page, context }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
@@ -11,7 +19,6 @@ test('complete practice session persists and works offline', async ({ page, cont
   await expect(page.getByRole('button',{name:'Pauza',exact:true})).toBeVisible();
   await page.locator('#subdivision').selectOption('3');
   await expect(page.locator('#subdivision')).toHaveValue('3');
-  await page.getByRole('button',{name:'Wycisz warstwę 1',exact:true}).click();
   await page.getByRole('switch',{name:'Dron tonalny'}).click();
   await page.locator('#root').selectOption('5');
   await page.getByRole('button',{name:'Oś czasu',exact:true}).click();
@@ -20,7 +27,6 @@ test('complete practice session persists and works offline', async ({ page, cont
   await expect(page.locator('#offline-status')).toContainText('Gotowy offline');
   await page.reload();
   await expect(page.locator('#bpm')).toHaveValue('120');
-  await expect(page.getByRole('button',{name:'Wycisz warstwę 1',exact:true})).toHaveAttribute('aria-pressed','true');
   await expect(page.getByRole('switch',{name:'Dron tonalny'})).toHaveAttribute('aria-checked','true');
   await expect(page.locator('#root')).toHaveValue('5');
   await expect(page.getByRole('button',{name:'Start',exact:true})).toBeVisible();
@@ -57,30 +63,52 @@ test('layer limits, validation, help and mobile layout', async ({page}) => {
   await page.screenshot({path:'test-results/mobile.png',fullPage:true});
 });
 
-test('layer color and order persist, including moves between tabs', async ({page}) => {
+test('compact layer panel keeps a fixed size for four layers', async ({page}) => {
+  await page.setViewportSize({width:1440,height:1100});
+  await page.goto('/');
+
+  const panel = page.locator('.rhythm-panel');
+  const initialBox = await panel.boundingBox();
+  expect(initialBox).not.toBeNull();
+
+  await page.getByRole('button',{name:'Dodaj warstwę'}).click();
+  await page.getByRole('button',{name:'Dodaj warstwę'}).click();
+
+  await expect(page.locator('.layer')).toHaveCount(4);
+  const fourLayerBox = await panel.boundingBox();
+  expect(fourLayerBox).not.toBeNull();
+  expect(fourLayerBox!.width).toBe(initialBox!.width);
+  expect(fourLayerBox!.height).toBe(initialBox!.height);
+
+  for (let index = 1; index <= 4; index++) {
+    await expect(page.getByLabel(`Kolor warstwy ${index}`)).toBeVisible();
+    await expect(page.getByLabel(`Uderzenia warstwy ${index}`)).toBeVisible();
+  }
+  await expect(panel.getByLabel(/Wycisz warstwę/)).toHaveCount(0);
+  await expect(panel.getByLabel(/Solo warstwy/)).toHaveCount(0);
+  await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(0);
+  await expect(panel.getByLabel(/Przesuń warstwę/)).toHaveCount(0);
+  await expect(panel.locator('[id^="sound-"], [id^="gain-"], [id^="accent-"], [id^="pan-"]')).toHaveCount(0);
+  expect(await panel.evaluate(element => element.scrollHeight <= element.clientHeight)).toBe(true);
+  await page.screenshot({path:'test-results/compact-layers.png',fullPage:true});
+});
+
+test('layer colors persist across tabs', async ({page}) => {
   await page.goto('/');
   await page.getByLabel('Kolor warstwy 1').fill('#ff00aa');
   await expect(page.locator('.visual-legend span').first()).toHaveAttribute('style', /#ff00aa/);
   await expect(page.locator('#visual svg')).toContainText('3:2');
 
-  await expect(page.getByRole('button',{name:'Przesuń warstwę 1 wyżej'})).toBeDisabled();
-  await page.getByRole('button',{name:'Przesuń warstwę 1 niżej'}).click();
-  await expect(page.getByLabel('Uderzenia warstwy 1')).toHaveValue('2');
-  await expect(page.getByLabel('Uderzenia warstwy 2')).toHaveValue('3');
-  await expect(page.getByLabel('Kolor warstwy 2')).toHaveValue('#ff00aa');
-  await expect(page.locator('#visual svg')).toHaveAttribute('aria-label', /2:3/);
-
   await page.reload();
-  await expect(page.getByLabel('Kolor warstwy 2')).toHaveValue('#ff00aa');
-  await expect(page.getByLabel('Uderzenia warstwy 2')).toHaveValue('3');
+  await expect(page.getByLabel('Kolor warstwy 1')).toHaveValue('#ff00aa');
+  await expect(page.getByLabel('Uderzenia warstwy 1')).toHaveValue('3');
 
   for (let i = 0; i < 3; i++) await page.getByRole('button',{name:'Dodaj warstwę'}).click();
-  await page.locator('.layer-tab').first().click();
-  await page.getByRole('button',{name:'Przesuń warstwę 2 niżej'}).click();
-  await page.getByRole('button',{name:'Przesuń warstwę 3 niżej'}).click();
-  await page.getByRole('button',{name:'Przesuń warstwę 4 niżej'}).click();
   await expect(page.locator('.layer-tab').nth(1)).toHaveAttribute('aria-selected','true');
-  await expect(page.getByLabel('Kolor warstwy 5')).toHaveValue('#ff00aa');
+  await page.getByLabel('Kolor warstwy 5').fill('#00aaff');
+  await page.reload();
+  await page.locator('.layer-tab').nth(1).click();
+  await expect(page.getByLabel('Kolor warstwy 5')).toHaveValue('#00aaff');
 });
 
 test('visual motion switches between one pointer and smooth layer runners in every view', async ({page}) => {
@@ -125,7 +153,7 @@ test('support subdivision updates its visual dots without changing layer beats',
 
 test('legacy appearance preferences default safely to the pointer', async ({page}) => {
   await page.addInitScript(() => localStorage.setItem('polyrhythmer.preferences.v1', JSON.stringify({
-    version: 1, developerMode: true, activePaletteId: 'forest', palettes: [],
+    version: 1, language: 'pl', developerMode: true, activePaletteId: 'forest', palettes: [],
   })));
   await page.goto('/');
   await expect(page.getByRole('button',{name:'Wskazówka',exact:true})).toHaveAttribute('aria-pressed','true');
@@ -156,6 +184,17 @@ test('developer palettes persist and do not interrupt transport', async ({page})
   await expect(page.locator('.palette-row').filter({hasText:'Poprawiona paleta'})).toBeVisible();
   await page.locator('.palette-row').filter({hasText:'Poprawiona paleta'}).getByRole('button',{name:'Usuń'}).click();
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'forest');
+});
+
+test('high-contrast palette updates CSS and SVG without interrupting playback', async ({page}) => {
+  await page.goto('/');
+  await page.getByRole('button',{name:'Start',exact:true}).click();
+  await page.getByRole('button',{name:'Palety wyglądu'}).click();
+  await page.getByRole('button',{name:'Wybierz paletę Wysoki kontrast'}).click();
+  await expect(page.locator('html')).toHaveAttribute('data-palette', 'high-contrast');
+  await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(0, 0, 0)');
+  await expect(page.locator('#visual #circle-head circle')).toHaveAttribute('fill', '#ffffff');
+  await expect(page.getByRole('button',{name:'Pauza',exact:true})).toBeVisible();
 });
 
 test('palette names ask before overwriting an existing custom palette', async ({page}) => {

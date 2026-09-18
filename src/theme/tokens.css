@@ -1,0 +1,24 @@
+/* Semantic tokens are the styling API for every new component. */
+:root {
+  --control-background: var(--surface);
+  --control-border: var(--border);
+  --control-hover-background: color-mix(in srgb, var(--surface) 80%, var(--text));
+  --control-hover-border: var(--muted);
+  --control-selected-background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  --control-selected-border: color-mix(in srgb, var(--accent) 45%, var(--border));
+  --focus: var(--accent);
+  --on-accent: var(--background);
+  --status-background: color-mix(in srgb, var(--surface) 88%, var(--accent));
+  --status-text: var(--text);
+}
+
+body { background: var(--background); color: var(--text); }
+button, input, select { color: inherit; }
+button { border-color: var(--control-border); }
+button:hover:not(:disabled) { background: var(--control-hover-background); border-color: var(--control-hover-border); }
+button[aria-pressed=true] { background: var(--control-selected-background); border-color: var(--control-selected-border); }
+input, select { background: var(--control-background); border-color: var(--control-border); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline-color: var(--focus); }
+.panel, dialog { background: var(--surface); border-color: var(--border); color: var(--text); }
+.play, .developer-actions #save-palette { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.offline-badge { background: var(--status-background); color: var(--status-text); border-color: var(--border); }

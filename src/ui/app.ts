@@ -1,12 +1,13 @@
 import { AudioEngine } from '../audio/engine';
-import { MAX_LAYERS, newLayer, SOUNDS, type RhythmLayer, type SessionState } from '../domain/session';
+import { MAX_LAYERS, newLayer, type RhythmLayer, type SessionState } from '../domain/session';
 import { lcm, rhythmEvents } from '../domain/rhythm';
 import { loadSession, saveSession } from '../persistence/storage';
 import { availablePalettes, defaultPreferences, isBuiltInPalette, loadPreferences, paletteById, savePreferences, type Palette, type PaletteColors, type PreferencesState } from '../persistence/preferences';
+import { PREFERENCE_LANGUAGES, translateDom, translateText, type Language } from '../i18n';
 import { renderVisual, animateVisual } from '../visual/views';
+import { createVisualTheme } from '../theme/palette';
 
 const notes = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const soundNames = { wood: 'Drewno', sine: 'Miękki', bell: 'Dzwonek' };
 const modeNames = { chromatic: 'Chromatyczny', major: 'Durowy', minor: 'Molowy', dorian: 'Dorycki', phrygian: 'Frygijski' };
 const subdivisionNames = { 0: 'Wyłączona', 1: 'Ćwierćnuty', 2: 'Ósemki', 3: 'Triola ósemkowa', 4: 'Szesnastki', 5: 'Kwintola', 6: 'Sekstola' };
 const paletteColorKeys: (keyof PaletteColors)[] = ['background', 'surface', 'text', 'muted', 'border', 'accent'];
@@ -29,6 +30,7 @@ export class App {
   constructor(root: HTMLElement) {
     const loaded = loadSession(), loadedPreferences = loadPreferences(); this.state = loaded.state; this.preferences = loadedPreferences.preferences; this.root = root;
     this.applyPalette();
+    document.documentElement.lang = this.preferences.language;
     this.engine = new AudioEngine(this.state);
     this.engine.onInterrupted = () => { this.status = 'Audio wstrzymane przez przeglądarkę — naciśnij Start'; this.updateTransport(); };
     this.render();
@@ -56,12 +58,12 @@ export class App {
     const visibleStart = this.activeLayerTab * layersPerTab;
     const visibleLayers = s.layers.slice(visibleStart, visibleStart + layersPerTab);
     this.root.innerHTML = `<div class="shell">
-      <header class="topbar"><a class="brand" href="./" aria-label="Polyrhythmer — strona główna"><span class="brand-mark">◉</span> polyrhythmer<span class="version">01</span></a><div class="top-actions"><span id="offline-status" class="offline-badge">● <span>Sesja lokalna</span></span><button id="install" class="quiet" hidden>Zainstaluj ↗</button><button id="update" class="quiet" hidden>Nowa wersja ↻</button><button id="developer-mode" class="quiet" aria-label="Przełącz tryb deweloperski" aria-pressed="${this.preferences.developerMode}">Dev: ${this.preferences.developerMode ? 'wł.' : 'wył.'}</button><button id="developer-settings" class="quiet" aria-label="Palety wyglądu">Palety</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
+      <header class="topbar"><a class="brand" href="./" aria-label="Polyrhythmer — strona główna"><span class="brand-mark">◉</span> polyrhythmer<span class="version">01</span></a><div class="top-actions"><label class="language-select">Język<select id="language" aria-label="Język">${PREFERENCE_LANGUAGES.map(language => `<option value="${language}" ${selected(language, this.preferences.language)}>${({ pl: 'Polski', en: 'Angielski', de: 'Niemiecki', it: 'Włoski', es: 'Hiszpański', 'pt-BR': 'Portugalski (Brazylia)' } as Record<Language, string>)[language]}</option>`).join('')}</select></label><span id="offline-status" class="offline-badge">● <span>Sesja lokalna</span></span><button id="install" class="quiet" hidden>Zainstaluj ↗</button><button id="update" class="quiet" hidden>Nowa wersja ↻</button><button id="developer-mode" class="quiet" aria-label="Przełącz tryb deweloperski" aria-pressed="${this.preferences.developerMode}">Dev: ${this.preferences.developerMode ? 'wł.' : 'wył.'}</button><button id="developer-settings" class="quiet" aria-label="Palety wyglądu">Palety</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
       <main>
         <section class="intro"><div><p class="eyebrow">MAŁE LABORATORIUM RYTMU</p><h1>Znajdź wspólny puls<span>.</span></h1><p class="subtitle">Różne rytmy. Jeden moment spotkania.</p></div><span class="session-number">SESJA / 001<br><span>Stwórz przestrzeń do ćwiczeń</span></span></section>
         <div class="workspace">
           <section class="instrument panel" aria-label="Wizualizacja i transport"><div class="panel-top"><span class="section-tag"><i></i> POLIRYTM</span><div class="segmented" aria-label="Widok"><button id="circle" aria-pressed="${s.visualMode === 'circle'}">Okrąg</button><button id="timeline" aria-pressed="${s.visualMode === 'timeline'}">Oś czasu</button><button id="polygons" aria-pressed="${s.visualMode === 'polygons'}">Wielokąty</button></div></div>
-            <div id="visual">${renderVisual(s, { visualMotion: this.preferences.visualMotion })}</div>
+            <div id="visual">${renderVisual(s, { visualMotion: this.preferences.visualMotion, theme: createVisualTheme(paletteById(this.preferences, this.preferences.activePaletteId)?.colors ?? paletteById(defaultPreferences(), 'forest')!.colors) })}</div>
             <div class="visual-motion"><span>RUCH</span><div class="segmented" aria-label="Ruch wizualizacji"><button id="motion-pointer" aria-pressed="${this.preferences.visualMotion === 'pointer'}">Wskazówka</button><button id="motion-runners" aria-pressed="${this.preferences.visualMotion === 'runners'}">Kropki</button></div></div>
             <div class="visual-legend">${s.layers.map((l, i) => `<span style="--layer:${layerColor(l)}"><i></i>${i + 1} / ${l.beatsPerCycle} uderz.</span>`).join('')}<span class="cycle-length">${(60 * s.cycleBeats / s.bpm).toFixed(2)} s / cykl</span></div>
             <div class="transport"><div class="tempo"><label for="bpm">TEMPO</label><div><button id="slower" aria-label="Zmniejsz tempo">−</button><input id="bpm" type="number" min="20" max="300" step="1" value="${s.bpm}" aria-describedby="tempo-error"><span>BPM</span><button id="faster" aria-label="Zwiększ tempo">+</button></div><span id="tempo-error" class="field-error"></span></div><div class="play-controls"><button id="play" class="play">▶ <span>Start</span></button><button id="stop" class="stop" aria-label="Stop">■</button></div><button id="tap" class="tap">Tap tempo<span>wybij rytm</span></button></div>
@@ -70,11 +72,8 @@ export class App {
           <aside class="rhythm-panel panel"><div class="panel-heading"><div><p class="eyebrow">NIEZALEŻNE GŁOSY</p><h2>Warstwy rytmu <span>${s.layers.length}/${MAX_LAYERS}</span></h2></div><button id="add-layer" class="add" aria-label="Dodaj warstwę" ${s.layers.length >= MAX_LAYERS ? 'disabled' : ''}>+</button></div>
             <div class="presets"><span>ODKRYWAJ</span>${['3:2','4:3','5:4','7:4','7:5'].map(p => `<button data-preset="${p}" aria-pressed="${s.layers.map(l => l.beatsPerCycle).join(':') === p}">${p}</button>`).join('')}</div>
             <div class="layer-tabs" role="tablist" aria-label="Grupy warstw">${Array.from({length: tabCount}, (_, tab) => { const start = tab * layersPerTab; const end = Math.min(start + layersPerTab, s.layers.length); return `<button type="button" role="tab" class="layer-tab" data-layer-tab="${tab}" aria-selected="${tab === this.activeLayerTab}" aria-controls="layer-group-${tab}">${start + 1}–${end}</button>`; }).join('')}</div>
-            <div class="layers" id="layer-group-${this.activeLayerTab}" role="tabpanel" aria-label="Warstwy ${visibleStart + 1}–${visibleStart + visibleLayers.length}">${visibleLayers.map((l, offset) => { const i = visibleStart + offset; return `<section class="layer ${l.muted ? 'is-muted' : ''}" style="--layer:${layerColor(l)}"><div class="layer-heading"><span class="layer-number">${String(i + 1).padStart(2, '0')}</span><h3>Warstwa ${i + 1}</h3><button data-action="mute" data-index="${i}" aria-label="Wycisz warstwę ${i + 1}" aria-pressed="${l.muted}" class="tiny">M</button><button data-action="solo" data-index="${i}" aria-label="Solo warstwy ${i + 1}" aria-pressed="${l.solo}" class="tiny">S</button><button data-action="remove" data-index="${i}" aria-label="Usuń warstwę ${i + 1}" class="remove" ${s.layers.length <= 2 ? 'disabled' : ''}>×</button></div>
-              <div class="layer-toolbar"><label for="color-${i}">Kolor <input id="color-${i}" data-index="${i}" type="color" value="${l.color}" aria-label="Kolor warstwy ${i + 1}"></label><div class="layer-order"><span>Kolejność</span><button data-action="move-up" data-index="${i}" aria-label="Przesuń warstwę ${i + 1} wyżej" ${i === 0 ? 'disabled' : ''}>↑</button><button data-action="move-down" data-index="${i}" aria-label="Przesuń warstwę ${i + 1} niżej" ${i === s.layers.length - 1 ? 'disabled' : ''}>↓</button></div></div>
-              <div class="layer-main"><div class="beat-stepper"><button data-action="less" data-index="${i}" aria-label="Mniej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 1 ? 'disabled' : ''}>−</button><label><input id="beats-${i}" data-index="${i}" type="number" min="1" max="16" value="${l.beatsPerCycle}" aria-label="Uderzenia warstwy ${i + 1}"><span>uderz. / cykl</span></label><button data-action="more" data-index="${i}" aria-label="Więcej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 16 ? 'disabled' : ''}>+</button></div><label class="sound-label" for="sound-${i}">BARWA<select id="sound-${i}" data-index="${i}">${SOUNDS.map(sound => `<option value="${sound}" ${selected(sound,l.sound)}>${soundNames[sound]}</option>`).join('')}</select></label></div>
-              <div class="beat-dots" aria-hidden="true">${Array.from({length:l.beatsPerCycle},(_,j)=>`<i class="${j === 0 && l.accentFirst ? 'accent' : ''}"></i>`).join('')}</div>
-              <div class="layer-gain">${range(`gain-${i}`, 'Głośność', l.gain)}</div><details class="layer-details"><summary>Akcent i panorama</summary><label class="check"><input id="accent-${i}" data-index="${i}" type="checkbox" ${l.accentFirst ? 'checked' : ''}>Akcent pierwszego uderzenia</label>${range(`pan-${i}`, 'Panorama L ↔ R', l.pan, -1, 1, .01, '')}</details>
+            <div class="layers" id="layer-group-${this.activeLayerTab}" role="tabpanel" aria-label="Warstwy ${visibleStart + 1}–${visibleStart + visibleLayers.length}">${visibleLayers.map((l, offset) => { const i = visibleStart + offset; return `<section class="layer" style="--layer:${layerColor(l)}"><div class="layer-heading"><span class="layer-number">${String(i + 1).padStart(2, '0')}</span><h3>Warstwa ${i + 1}</h3><label class="layer-color" for="color-${i}"><span>Kolor</span><input id="color-${i}" data-index="${i}" type="color" value="${l.color}" aria-label="Kolor warstwy ${i + 1}"></label></div>
+              <div class="beat-stepper"><button data-action="less" data-index="${i}" aria-label="Mniej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 1 ? 'disabled' : ''}>−</button><label><input id="beats-${i}" data-index="${i}" type="number" min="1" max="16" value="${l.beatsPerCycle}" aria-label="Uderzenia warstwy ${i + 1}"><span>uderzeń / cykl</span></label><button data-action="more" data-index="${i}" aria-label="Więcej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 16 ? 'disabled' : ''}>+</button></div>
             </section>`; }).join('')}</div>
             <div class="cycle-setting"><label for="cycle-beats">Długość wspólnego cyklu<small>Jedna ćwierćnuta = jeden puls BPM</small></label><select id="cycle-beats">${Array.from({length:16},(_,i)=>`<option value="${i+1}" ${selected(s.cycleBeats,i+1)}>${i+1} ♩</option>`).join('')}</select></div>
             <div class="cycle-setting"><label for="subdivision">Podział podpórki<small>Regularny klik pomaga utrzymać wspólny puls</small></label><select id="subdivision">${Object.entries(subdivisionNames).map(([v,n])=>`<option value="${v}" ${selected(s.subdivision,Number(v))}>${n}</option>`).join('')}</select></div>
@@ -86,10 +85,11 @@ export class App {
         <details class="event-details"><summary>Jak spotykają się rytmy? <span>${steps} wspólnych kroków ↗</span></summary><p>Każda warstwa dzieli ten sam cykl na równe odcinki. Krok 0 to wspólny początek.</p><table><caption>Uderzenia na siatce ${steps} kroków</caption><thead><tr><th>Warstwa</th><th>Kroki uderzeń</th></tr></thead><tbody>${s.layers.map((l,i)=>`<tr><th>${i+1} · ${l.beatsPerCycle} uderz.</th><td>${rhythmEvents([ ...s.layers ]).filter(e=>e.layerId===l.id).map(e=>e.step).join(', ')}</td></tr>`).join('')}</tbody></table></details>
         <p id="message" class="message" role="alert"></p>
       </main><footer><span>Stworzone do uważnego słuchania.</span><div class="master">${range('master','Głośność główna',s.masterGain)}</div><span>BEZ KONT. BEZ POŚPIECHU.</span></footer>
-      <dialog id="help-dialog"><button id="close-help" class="close-dialog" aria-label="Zamknij pomoc">×</button><p class="eyebrow">KRÓTKI PRZEWODNIK</p><h2>Wiele rytmów, jeden cykl.</h2><p>Wybierz proporcję, np. 3:2, i naciśnij Start. Pierwsza warstwa zagra trzy, a druga dwa równo rozmieszczone uderzenia w tym samym czasie.</p><p>BPM określa tempo ćwierćnut. Długość cyklu mówi, ile ćwierćnut mieści się w pełnym obrocie. Przy 90 BPM i 4 ćwierćnutach cykl trwa 2,67 s.</p><p><strong>M</strong> wycisza warstwę. <strong>S</strong> pozwala słuchać tylko wybranych warstw. Pauza zachowuje pozycję, Stop wraca do zera. Spacja działa, gdy fokus nie jest w kontrolce.</p><p>Włącz dron, by ćwiczyć na tle stałego tonu. Tryb zmienia tercję trójdźwięku; pryma i kwinta pozostają te same.</p><p>Ustawienia zapisują się na tym urządzeniu. Gdy zobaczysz „Gotowy offline”, możesz wrócić bez internetu. Do instalacji na iOS wybierz Udostępnij → Do ekranu początkowego. System może zatrzymać dźwięk w tle lub po zablokowaniu ekranu.</p></dialog>
+      <dialog id="help-dialog"><button id="close-help" class="close-dialog" aria-label="Zamknij pomoc">×</button><p class="eyebrow">KRÓTKI PRZEWODNIK</p><h2>Wiele rytmów, jeden cykl.</h2><p>Wybierz proporcję, np. 3:2, i naciśnij Start. Pierwsza warstwa zagra trzy, a druga dwa równo rozmieszczone uderzenia w tym samym czasie.</p><p>BPM określa tempo ćwierćnut. Długość cyklu mówi, ile ćwierćnut mieści się w pełnym obrocie. Przy 90 BPM i 4 ćwierćnutach cykl trwa 2,67 s.</p><p>Każda karta warstwy pozwala ustawić jej kolor i liczbę uderzeń w cyklu. Pauza zachowuje pozycję, Stop wraca do zera. Spacja działa, gdy fokus nie jest w kontrolce.</p><p>Włącz dron, by ćwiczyć na tle stałego tonu. Tryb zmienia tercję trójdźwięku; pryma i kwinta pozostają te same.</p><p>Ustawienia zapisują się na tym urządzeniu. Gdy zobaczysz „Gotowy offline”, możesz wrócić bez internetu. Do instalacji na iOS wybierz Udostępnij → Do ekranu początkowego. System może zatrzymać dźwięk w tle lub po zablokowaniu ekranu.</p></dialog>
       <dialog id="developer-dialog"><button id="close-developer" class="close-dialog" aria-label="Zamknij ustawienia palet">×</button><p class="eyebrow">USTAWIENIA PALET</p><h2>Palety wyglądu</h2><p class="developer-copy">Wybierz paletę, aby jej użyć i załadować kolory do edytora. Palety zapisują się lokalnie.</p><div class="palette-list">${paletteRows}</div><hr><h3 id="palette-form-title">Nowa paleta</h3><label class="developer-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><div class="palette-colors">${paletteColorKeys.map(key => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><div class="developer-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></dialog>
     </div>`;
     this.updateTransport();
+    translateDom(this.root, this.preferences.language);
     if (active) document.getElementById(active)?.focus({ preventScroll: true });
     document.dispatchEvent(new Event('app-render'));
   }
@@ -99,7 +99,7 @@ export class App {
     if (render) this.render();
     if (!saveSession(next)) this.message('Zapis lokalny jest niedostępny. Ustawienia działają do zamknięcia strony.');
   }
-  private message(text: string) { this.root.querySelector('#message')!.textContent = text; }
+  private message(text: string) { this.root.querySelector('#message')!.textContent = translateText(text, this.preferences.language); }
   private applyPalette() {
     const palette = paletteById(this.preferences, this.preferences.activePaletteId) ?? paletteById(defaultPreferences(), 'forest')!;
     document.documentElement.dataset.palette = palette.id;
@@ -158,10 +158,10 @@ export class App {
   }
   private updateTransport() {
     const playing = this.engine.clock.running;
-    this.root.querySelector('#play')!.innerHTML = `${playing ? 'Ⅱ' : '▶'} <span>${playing ? 'Pauza' : 'Start'}</span>`;
-    this.root.querySelector('#play')!.setAttribute('aria-label', playing ? 'Pauza' : 'Start');
+    this.root.querySelector('#play')!.innerHTML = `${playing ? 'Ⅱ' : '▶'} <span>${translateText(playing ? 'Pauza' : 'Start', this.preferences.language)}</span>`;
+    this.root.querySelector('#play')!.setAttribute('aria-label', translateText(playing ? 'Pauza' : 'Start', this.preferences.language));
     (this.root.querySelector('#play') as HTMLButtonElement).disabled = this.busy;
-    this.root.querySelector('#transport-status')!.textContent = this.status;
+    this.root.querySelector('#transport-status')!.textContent = translateText(this.status, this.preferences.language);
     this.root.querySelector('.instrument')!.classList.toggle('playing', playing);
   }
   private async toggle() {
@@ -190,11 +190,6 @@ export class App {
     if (button.dataset.action) {
       const index = Number(button.dataset.index), layer = this.state.layers[index];
       switch (button.dataset.action) {
-        case 'mute': layer.muted = !layer.muted; break;
-        case 'solo': layer.solo = !layer.solo; break;
-        case 'remove': if (this.state.layers.length > 2) this.state.layers.splice(index,1); break;
-        case 'move-up': if (index > 0) { [this.state.layers[index - 1], this.state.layers[index]] = [layer, this.state.layers[index - 1]]; this.activeLayerTab = Math.floor((index - 1) / layersPerTab); } break;
-        case 'move-down': if (index < this.state.layers.length - 1) { [this.state.layers[index], this.state.layers[index + 1]] = [this.state.layers[index + 1], layer]; this.activeLayerTab = Math.floor((index + 1) / layersPerTab); } break;
         case 'less': layer.beatsPerCycle = Math.max(1,layer.beatsPerCycle - 1); break;
         case 'more': layer.beatsPerCycle = Math.min(16,layer.beatsPerCycle + 1); break;
       }
@@ -227,6 +222,7 @@ export class App {
   }
   private change(event: Event) {
     const input = event.target as HTMLInputElement;
+    if (input.id === 'language' && PREFERENCE_LANGUAGES.includes(input.value as Language)) { this.preferences.language = input.value as Language; this.saveAppearancePreferences(); this.render(); return; }
     if (input.id === 'active-palette' && paletteById(this.preferences, input.value)) { this.selectPalette(paletteById(this.preferences, input.value)!); return; }
     if (input.type === 'range') return;
     if (!input.checkValidity() || input.value === '') {
@@ -240,9 +236,7 @@ export class App {
     else if (input.id === 'cycle-beats') this.state.cycleBeats = value;
     else if (input.id === 'subdivision') this.state.subdivision = value;
     else if (input.id.startsWith('beats-')) this.state.layers[index].beatsPerCycle = value;
-    else if (input.id.startsWith('sound-')) this.state.layers[index].sound = input.value as typeof SOUNDS[number];
     else if (input.id.startsWith('color-')) this.state.layers[index].color = input.value;
-    else if (input.id.startsWith('accent-')) this.state.layers[index].accentFirst = input.checked;
     else if (input.id === 'root') this.state.drone.root = value;
     else if (input.id === 'octave') this.state.drone.octave = value;
     else if (input.id === 'mode') this.state.drone.mode = input.value as SessionState['drone']['mode'];
@@ -254,14 +248,12 @@ export class App {
     const input = event.target as HTMLInputElement;
     if (input.type !== 'range') return;
     const value = Number(input.value);
-    if (input.id.startsWith('gain-')) this.state.layers[Number(input.id.slice(5))].gain = value;
-    else if (input.id.startsWith('pan-')) this.state.layers[Number(input.id.slice(4))].pan = value;
-    else if (input.id === 'drone-gain') this.state.drone.gain = value;
+    if (input.id === 'drone-gain') this.state.drone.gain = value;
     else if (input.id === 'filter') this.state.drone.filterHz = value;
     else if (input.id === 'spread') this.state.drone.spread = value;
     else if (input.id === 'master') this.state.masterGain = value;
     else return;
-    const display = input.id === 'filter' ? `${value} Hz` : input.id.startsWith('pan-') ? `${value}` : `${Math.round(value*100)}%`;
+    const display = input.id === 'filter' ? `${value} Hz` : `${Math.round(value*100)}%`;
     this.root.querySelector(`#${input.id}-value`)!.textContent = display;
     input.setAttribute('aria-valuetext', display); this.commit(false);
   }
