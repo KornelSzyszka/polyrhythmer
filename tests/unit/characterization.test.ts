@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { eventsInWindow, rhythmEvents } from '../../src/domain/rhythm';
-import { isSession, MAX_LAYERS, type RhythmLayer, type SessionState } from '../../src/domain/session';
+import { isSession, MAX_LAYERS, MAX_MASTER_GAIN, type RhythmLayer, type SessionState } from '../../src/domain/session';
 import { Scheduler } from '../../src/audio/scheduler';
 import type { ClickVoices } from '../../src/audio/voices';
 import { TransportClock } from '../../src/transport/clock';
@@ -70,7 +70,7 @@ describe('SessionState v1 characterization', () => {
     const maximum = sessionFixture({
       bpm: 300,
       cycleBeats: 16,
-      masterGain: 1,
+      masterGain: MAX_MASTER_GAIN,
       layers: Array.from({ length: MAX_LAYERS }, (_, index) =>
         layer(`max-${index}`, 16, { gain: 1, pan: 1, sound: 'bell' }),
       ),
