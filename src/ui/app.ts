@@ -17,6 +17,7 @@ const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, character => ({ 
 const range = (id: string, label: string, value: number, min = 0, max = 1, step = .01, unit = '%') => `<label class="range-label" for="${id}">${label}<output id="${id}-value">${unit === '%' ? Math.round(value * 100) : value}${unit}</output></label><input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" aria-valuetext="${unit === '%' ? Math.round(value * 100) : value}${unit}">`;
 const layersPerTab = 4;
 const layerColor = (layer: RhythmLayer) => layer.color;
+const removeLayerLabel = (language: Language, layerNumber: number) => `${({ pl: 'Usuń warstwę', en: 'Remove layer', de: 'Ebene entfernen', it: 'Rimuovi livello', es: 'Eliminar capa', 'pt-BR': 'Remover camada' } as Record<Language, string>)[language]} ${layerNumber}`;
 export class App {
   state: SessionState;
   engine: AudioEngine;
@@ -72,7 +73,7 @@ export class App {
           <aside class="rhythm-panel panel"><div class="panel-heading"><div><p class="eyebrow">NIEZALEŻNE GŁOSY</p><h2>Warstwy rytmu <span>${s.layers.length}/${MAX_LAYERS}</span></h2></div><button id="add-layer" class="add" aria-label="Dodaj warstwę" ${s.layers.length >= MAX_LAYERS ? 'disabled' : ''}>+</button></div>
             <div class="presets"><span>ODKRYWAJ</span>${['3:2','4:3','5:4','7:4','7:5'].map(p => `<button data-preset="${p}" aria-pressed="${s.layers.map(l => l.beatsPerCycle).join(':') === p}">${p}</button>`).join('')}</div>
             <div class="layer-tabs" role="tablist" aria-label="Grupy warstw">${Array.from({length: tabCount}, (_, tab) => { const start = tab * layersPerTab; const end = Math.min(start + layersPerTab, s.layers.length); return `<button type="button" role="tab" class="layer-tab" data-layer-tab="${tab}" aria-selected="${tab === this.activeLayerTab}" aria-controls="layer-group-${tab}">${start + 1}–${end}</button>`; }).join('')}</div>
-            <div class="layers" id="layer-group-${this.activeLayerTab}" role="tabpanel" aria-label="Warstwy ${visibleStart + 1}–${visibleStart + visibleLayers.length}">${visibleLayers.map((l, offset) => { const i = visibleStart + offset; return `<section class="layer" style="--layer:${layerColor(l)}"><div class="layer-heading"><span class="layer-number">${String(i + 1).padStart(2, '0')}</span><h3>Warstwa ${i + 1}</h3><label class="layer-color" for="color-${i}"><span>Kolor</span><input id="color-${i}" data-index="${i}" type="color" value="${l.color}" aria-label="Kolor warstwy ${i + 1}"></label></div>
+            <div class="layers" id="layer-group-${this.activeLayerTab}" role="tabpanel" aria-label="Warstwy ${visibleStart + 1}–${visibleStart + visibleLayers.length}">${visibleLayers.map((l, offset) => { const i = visibleStart + offset; return `<section class="layer" style="--layer:${layerColor(l)}"><div class="layer-heading"><span class="layer-number">${String(i + 1).padStart(2, '0')}</span><h3>Warstwa ${i + 1}</h3><button type="button" class="layer-remove" data-action="remove" data-index="${i}" aria-label="${removeLayerLabel(this.preferences.language, i + 1)}" ${s.layers.length <= 2 ? 'disabled' : ''}>×</button></div><label class="layer-color" for="color-${i}"><span>Kolor</span><input id="color-${i}" data-index="${i}" type="color" value="${l.color}" aria-label="Kolor warstwy ${i + 1}"></label>
               <div class="beat-stepper"><button data-action="less" data-index="${i}" aria-label="Mniej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 1 ? 'disabled' : ''}>−</button><label><input id="beats-${i}" data-index="${i}" type="number" min="1" max="16" value="${l.beatsPerCycle}" aria-label="Uderzenia warstwy ${i + 1}"><span>uderzeń / cykl</span></label><button data-action="more" data-index="${i}" aria-label="Więcej uderzeń warstwy ${i + 1}" ${l.beatsPerCycle === 16 ? 'disabled' : ''}>+</button></div>
             </section>`; }).join('')}</div>
             <div class="cycle-setting"><label for="cycle-beats">Długość wspólnego cyklu<small>Jedna ćwierćnuta = jeden puls BPM</small></label><select id="cycle-beats">${Array.from({length:16},(_,i)=>`<option value="${i+1}" ${selected(s.cycleBeats,i+1)}>${i+1} ♩</option>`).join('')}</select></div>
@@ -192,6 +193,7 @@ export class App {
       switch (button.dataset.action) {
         case 'less': layer.beatsPerCycle = Math.max(1,layer.beatsPerCycle - 1); break;
         case 'more': layer.beatsPerCycle = Math.min(16,layer.beatsPerCycle + 1); break;
+        case 'remove': if (this.state.layers.length > 2) this.state.layers.splice(index, 1); break;
       }
       this.commit(); return;
     }

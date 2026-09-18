@@ -102,6 +102,7 @@ dialog hr { margin: var(--space-lg) 0; }
 
 .rhythm-panel .presets { padding: var(--space-sm) 0; }
 .rhythm-panel .layer { gap: var(--space-md); padding: var(--space-sm) 0; }
+.rhythm-panel .layer-heading { gap: var(--space-xs) var(--space-sm); }
 .rhythm-panel .beat-stepper { gap: var(--space-xs); }
 .layer-color { gap: var(--space-sm); }
 .layer-color input[type=color] { padding: var(--space-3xs); }

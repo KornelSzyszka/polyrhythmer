@@ -70,6 +70,8 @@ test('compact layer panel keeps a fixed size for four layers', async ({page}) =>
   const panel = page.locator('.rhythm-panel');
   const initialBox = await panel.boundingBox();
   expect(initialBox).not.toBeNull();
+  await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(2);
+  await expect(panel.getByLabel('Usuń warstwę 1')).toBeDisabled();
 
   await page.getByRole('button',{name:'Dodaj warstwę'}).click();
   await page.getByRole('button',{name:'Dodaj warstwę'}).click();
@@ -86,9 +88,29 @@ test('compact layer panel keeps a fixed size for four layers', async ({page}) =>
   }
   await expect(panel.getByLabel(/Wycisz warstwę/)).toHaveCount(0);
   await expect(panel.getByLabel(/Solo warstwy/)).toHaveCount(0);
-  await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(0);
+  await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(4);
+  await expect(panel.getByLabel('Usuń warstwę 4')).toBeEnabled();
+  const firstLayerBox = await page.locator('.layer').first().boundingBox();
+  const firstRemoveBox = await panel.getByLabel('Usuń warstwę 1').boundingBox();
+  expect(firstLayerBox).not.toBeNull();
+  expect(firstRemoveBox).not.toBeNull();
+  expect(Math.abs(firstLayerBox!.x + firstLayerBox!.width - firstRemoveBox!.x - firstRemoveBox!.width)).toBeLessThanOrEqual(1);
   await expect(panel.getByLabel(/Przesuń warstwę/)).toHaveCount(0);
   await expect(panel.locator('[id^="sound-"], [id^="gain-"], [id^="accent-"], [id^="pan-"]')).toHaveCount(0);
+
+  await panel.getByLabel('Usuń warstwę 4').click();
+  await expect(page.locator('.layer')).toHaveCount(3);
+  await page.getByRole('button',{name:'Dodaj warstwę'}).click();
+  await page.getByRole('button',{name:'Dodaj warstwę'}).click();
+  await expect(page.getByLabel('Uderzenia warstwy 5')).toBeVisible();
+  await expect(page.locator('.layer-tab')).toHaveCount(2);
+  await panel.getByLabel('Usuń warstwę 5').click();
+  await expect(page.locator('.layer-tab')).toHaveCount(1);
+  await expect(page.getByLabel('Uderzenia warstwy 1')).toBeVisible();
+  await expect(page.locator('.layer')).toHaveCount(4);
+  await page.reload();
+  await expect(page.locator('.layer')).toHaveCount(4);
+  await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(4);
   expect(await panel.evaluate(element => element.scrollHeight <= element.clientHeight)).toBe(true);
   await page.screenshot({path:'test-results/compact-layers.png',fullPage:true});
 });
