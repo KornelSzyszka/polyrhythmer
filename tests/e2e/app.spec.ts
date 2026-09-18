@@ -93,6 +93,50 @@ test('compact layer panel keeps a fixed size for four layers', async ({page}) =>
   await page.screenshot({path:'test-results/compact-layers.png',fullPage:true});
 });
 
+test('desktop panels are equal and visible spacing follows the golden scale', async ({page}) => {
+  await page.setViewportSize({width:1440,height:1100});
+  await page.goto('/');
+
+  const instrumentBox = await page.locator('.instrument').boundingBox();
+  const rhythmBox = await page.locator('.rhythm-panel').boundingBox();
+  expect(instrumentBox).not.toBeNull();
+  expect(rhythmBox).not.toBeNull();
+  expect.soft(Math.abs(instrumentBox!.height - rhythmBox!.height)).toBeLessThanOrEqual(1);
+  expect(await page.locator('.instrument').evaluate(element => element.scrollHeight <= element.clientHeight)).toBe(true);
+
+  const spacingViolations = await page.evaluate(() => {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const tokenNames = [
+      '--space-3xs', '--space-2xs', '--space-xs', '--space-sm',
+      '--space-md', '--space-lg', '--space-xl', '--space-2xl',
+    ];
+    const allowed = [0, ...tokenNames.map(name => Number.parseFloat(rootStyle.getPropertyValue(name)))];
+    const properties = [
+      'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
+      'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+      'rowGap', 'columnGap',
+    ] as const;
+
+    return [...document.querySelectorAll<HTMLElement>('.shell, .shell *')]
+      .filter(element => element.getClientRects().length > 0)
+      .flatMap(element => {
+        const style = getComputedStyle(element);
+        const selector = `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${[...element.classList].map(name => `.${name}`).join('')}`;
+        return properties.flatMap(property => {
+          const isAutoCenteringMargin = (property === 'marginLeft' || property === 'marginRight')
+            && element.matches('.shell, #visual');
+          if (isAutoCenteringMargin) return [];
+          const value = Number.parseFloat(style[property]);
+          if (!Number.isFinite(value)) return [];
+          const matchesToken = allowed.some(token => Math.abs(Math.abs(value) - token) <= 0.02);
+          return matchesToken ? [] : [{selector, property, value}];
+        });
+      });
+  });
+
+  expect(spacingViolations).toEqual([]);
+});
+
 test('layer colors persist across tabs', async ({page}) => {
   await page.goto('/');
   await page.getByLabel('Kolor warstwy 1').fill('#ff00aa');

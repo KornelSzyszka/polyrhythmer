@@ -29,6 +29,8 @@ input[type=range] { margin: var(--space-md) 0 var(--space-xs); }
 .section-tag { gap: var(--space-sm); }
 .segmented { padding: var(--space-2xs); }
 .segmented button { padding: var(--space-sm) var(--space-md); }
+.visual-motion { gap: var(--space-sm); margin: calc(-1 * var(--space-sm)) 0 var(--space-md); }
+.visual-motion .segmented button { padding: var(--space-xs) var(--space-sm); }
 .visual-legend { gap: var(--space-lg); }
 .visual-legend span { gap: var(--space-sm); }
 .visual-legend .cycle-length { padding-left: var(--space-lg); }
@@ -44,6 +46,8 @@ input[type=range] { margin: var(--space-md) 0 var(--space-xs); }
 .panel-heading h2 span { margin-left: var(--space-sm); }
 .presets { gap: var(--space-sm); padding: var(--space-lg) 0; }
 .presets button { padding: var(--space-sm) var(--space-md); }
+.layer-tabs { gap: var(--space-xs); padding: var(--space-md) 0 var(--space-xs); }
+.layer-tab { padding: var(--space-sm) var(--space-md); }
 .layer { padding: var(--space-lg) 0; }
 .layer-heading { gap: var(--space-sm); }
 .layer-number { padding: var(--space-xs); }
@@ -95,6 +99,12 @@ dialog hr { margin: var(--space-lg) 0; }
 .palette-select { gap: var(--space-md); padding: var(--space-md); }
 .palette-select .palette-swatches { gap: var(--space-xs); }
 .palette-row > small { margin-right: var(--space-md); }
+
+.rhythm-panel .presets { padding: var(--space-sm) 0; }
+.rhythm-panel .layer { gap: var(--space-md); padding: var(--space-sm) 0; }
+.rhythm-panel .beat-stepper { gap: var(--space-xs); }
+.layer-color { gap: var(--space-sm); }
+.layer-color input[type=color] { padding: var(--space-3xs); }
 
 .shell { padding: 0 var(--space-xl); }
 .top-actions { gap: var(--space-lg); }
