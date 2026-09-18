@@ -1,12 +1,15 @@
+import { PREFERENCE_LANGUAGES, translateText, type Language } from './i18n';
+
 interface InstallEvent extends Event { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }
 export function setupPwa(isPlaying: () => boolean, stop: () => void) {
   let ready = false;
   let waiting: ServiceWorker | null = null;
   let install: InstallEvent | null = null;
   let updating = false;
+  const text = (value: string) => translateText(value, PREFERENCE_LANGUAGES.includes(document.documentElement.lang as Language) ? document.documentElement.lang as Language : 'en');
   const refresh = () => {
     const status = document.querySelector('#offline-status span');
-    if (status) status.textContent = ready ? (navigator.onLine ? 'Gotowy offline' : 'Tryb offline') : import.meta.env.DEV ? 'Tryb lokalny' : 'Przygotowanie offline';
+    if (status) status.textContent = text(ready ? (navigator.onLine ? 'Gotowy offline' : 'Tryb offline') : import.meta.env.DEV ? 'Tryb lokalny' : 'Przygotowanie offline');
     const button = document.querySelector<HTMLButtonElement>('#install'); if (button) button.hidden = !install;
     const update = document.querySelector<HTMLButtonElement>('#update'); if (update) update.hidden = !waiting;
   };
@@ -19,7 +22,7 @@ export function setupPwa(isPlaying: () => boolean, stop: () => void) {
     if (button?.id === 'install' && install) { await install.prompt(); await install.userChoice; install = null; refresh(); }
     if (button?.id === 'update' && waiting) {
       if (isPlaying()) {
-        document.querySelector('#message')!.textContent = 'Zatrzymaj odtwarzanie, aby bezpiecznie zainstalować nową wersję.'; return;
+        document.querySelector('#message')!.textContent = text('Zatrzymaj odtwarzanie, aby bezpiecznie zainstalować nową wersję.'); return;
       }
       stop(); updating = true; waiting.postMessage({ type: 'SKIP_WAITING' });
     }
@@ -37,6 +40,6 @@ export function setupPwa(isPlaying: () => boolean, stop: () => void) {
     });
     return navigator.serviceWorker.ready;
   }).then(() => { ready = true; refresh(); }).catch(() => {
-    const status = document.querySelector('#offline-status span'); if (status) status.textContent = 'Offline niedostępny';
+    const status = document.querySelector('#offline-status span'); if (status) status.textContent = text('Offline niedostępny');
   });
 }

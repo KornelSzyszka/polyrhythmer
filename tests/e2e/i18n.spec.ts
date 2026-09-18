@@ -4,6 +4,22 @@ test('English is the default and each supported language persists without pausin
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { name: 'Find the common pulse.' })).toBeVisible();
+  await expect(page.locator('.session-number')).toContainText('SESSION / 001');
+  await expect(page.locator('#mode')).toContainText('Minor');
+  await expect(page.locator('#chord')).toContainText('Triad');
+  await expect(page.locator('.beat-stepper').first()).toContainText('beats / cycle');
+  await expect(page.locator('.event-details summary')).toContainText('common steps');
+  await expect(page.locator('#cycle-counter')).toContainText('CYCLE 01');
+  const textArtifacts = (await page.locator('body').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
+  expect(textArtifacts).toEqual([]);
+  await page.getByRole('button', { name: 'How it works' }).click();
+  const helpArtifacts = (await page.getByRole('dialog').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
+  expect(helpArtifacts).toEqual([]);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Appearance palettes' }).click();
+  const paletteArtifacts = (await page.getByRole('dialog').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
+  expect(paletteArtifacts).toEqual([]);
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible();
 
@@ -12,6 +28,10 @@ test('English is the default and each supported language persists without pausin
     await expect(page.locator('html')).toHaveAttribute('lang', language);
     await expect(page.locator('#language')).toHaveValue(language);
     await expect(page.locator('#play')).toContainText(language === 'pl' ? 'Pauza' : language === 'en' ? 'Pause' : /.*/);
+    if (language === 'en') {
+      const artifacts = (await page.locator('body').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
+      expect(artifacts).toEqual([]);
+    }
   }
 
   await page.reload();

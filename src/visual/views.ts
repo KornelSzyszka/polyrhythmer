@@ -1,5 +1,6 @@
 import { type SessionState } from '../domain/session';
 import { lcm } from '../domain/rhythm';
+import { PREFERENCE_LANGUAGES, translateText, type Language } from '../i18n';
 import { createVisualTheme, type VisualTheme } from '../theme/palette';
 
 const coordinate = (value: number) => String(Number(value.toFixed(3)));
@@ -121,7 +122,10 @@ export function animateVisual(container: HTMLElement, position: number, playing:
     dot.setAttribute('cx', String(point.x)); dot.setAttribute('cy', String(point.y));
   });
   const count = container.querySelector('#cycle-counter');
-  if (count) count.textContent = `CYKL ${String(Math.floor(position) + 1).padStart(2, '0')}`;
+  if (count) {
+    const language = PREFERENCE_LANGUAGES.includes(document.documentElement.lang as Language) ? document.documentElement.lang as Language : 'en';
+    count.textContent = translateText(`CYKL ${String(Math.floor(position) + 1).padStart(2, '0')}`, language);
+  }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   container.querySelectorAll<SVGCircleElement>('[data-beat]').forEach(dot => {
     const distance = (phase - Number(dot.dataset.beat) + 1) % 1;
