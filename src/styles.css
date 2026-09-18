@@ -1080,6 +1080,91 @@ dialog::backdrop {
     display: none;
   }
 }
+
+.harmony-field {
+  pointer-events: none;
+  transform-origin: 240px 240px;
+  transition: opacity 90ms linear;
+}
+.harmony-mist {
+  transform-origin: 240px 240px;
+}
+.harmony-aurora {
+  mix-blend-mode: screen;
+}
+.note-palette {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 13px;
+}
+.note-palette summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+.note-palette summary span {
+  color: var(--muted);
+  font-size: 8px;
+}
+.note-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 13px;
+}
+.note-style {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+.note-style strong {
+  min-width: 21px;
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+.note-style label > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.note-style input[type='color'] {
+  width: 27px;
+  height: 27px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.note-style select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  font-size: 10px;
+}
+@media (max-width: 900px) {
+  .note-palette-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .note-palette-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .rhythm-panel .layer-heading {
   grid-column: 1/-1;
   display: grid;

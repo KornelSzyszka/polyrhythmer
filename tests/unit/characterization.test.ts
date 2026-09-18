@@ -11,6 +11,7 @@ import {
 import { Scheduler } from '../../src/audio/scheduler';
 import type { ClickVoices } from '../../src/audio/voices';
 import { TransportClock } from '../../src/transport/clock';
+import { defaultNotePalette } from '../../src/domain/note-colors';
 
 const layer = (
   id: string,
@@ -51,6 +52,7 @@ const sessionFixture = (overrides: Partial<SessionState> = {}): SessionState => 
     filterHz: 1200,
     spread: 0.5,
   },
+  notePalette: defaultNotePalette(),
   visualMode: 'circle',
   masterGain: 0.7,
   ...overrides,

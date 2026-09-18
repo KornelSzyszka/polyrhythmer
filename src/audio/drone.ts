@@ -1,7 +1,9 @@
 import { midiToHz, voicing } from '../domain/harmony';
+import { pitchClassForMidi, type NotePalette } from '../domain/note-colors';
 import type { DroneState } from '../domain/session';
 interface DroneVoice {
   oscillator: OscillatorNode;
+  gain: GainNode;
   pan: StereoPannerNode;
 }
 export class DroneEngine {
@@ -18,7 +20,7 @@ export class DroneEngine {
   get activeCount() {
     return this.voices.length + (this.lfo ? 1 : 0) + this.retiring;
   }
-  update(state: DroneState, playing: boolean) {
+  update(state: DroneState, notePalette: NotePalette, playing: boolean) {
     if (!playing || !state.enabled) {
       this.stop();
       return;
@@ -43,21 +45,35 @@ export class DroneEngine {
     if (!this.voices.length) {
       for (let i = 0; i < 3; i++) {
         const oscillator = this.context.createOscillator();
-        oscillator.type = 'triangle';
+        const voiceGain = this.context.createGain();
+        voiceGain.gain.value = 0.78;
         const pan = this.context.createStereoPanner();
-        oscillator.connect(pan).connect(this.filter!);
-        oscillator.frequency.value = midiToHz(notes[i % notes.length]);
+        const note = notes[i % notes.length];
+        oscillator.type = notePalette.notes[pitchClassForMidi(note)].timbre;
+        oscillator.connect(voiceGain).connect(pan).connect(this.filter!);
+        oscillator.frequency.value = midiToHz(note);
         oscillator.detune.value = (i - 1) * 3;
         oscillator.start();
-        this.voices.push({ oscillator, pan });
+        this.voices.push({ oscillator, gain: voiceGain, pan });
       }
     }
     this.voices.forEach((voice, i) => {
-      voice.oscillator.frequency.setTargetAtTime(midiToHz(notes[i % notes.length]), now, 0.08);
+      const note = notes[i % notes.length];
+      voice.oscillator.type = notePalette.notes[pitchClassForMidi(note)].timbre;
+      voice.oscillator.frequency.setTargetAtTime(midiToHz(note), now, 0.08);
       voice.pan.pan.setTargetAtTime((i - 1) * state.spread, now, 0.04);
     });
     this.filter!.frequency.setTargetAtTime(state.filterHz, now, 0.06);
     this.gain.gain.setTargetAtTime(state.gain * 0.12, now, 0.08);
+  }
+  accent(noteIndex: number, when: number) {
+    const voice = this.voices[noteIndex % this.voices.length];
+    if (!voice) return;
+    const gain = voice.gain.gain;
+    gain.cancelScheduledValues(when);
+    gain.setValueAtTime(0.78, when);
+    gain.linearRampToValueAtTime(1.32, when + 0.025);
+    gain.exponentialRampToValueAtTime(0.78, when + 0.32);
   }
   stop() {
     if (!this.gain) return;
@@ -83,6 +99,7 @@ export class DroneEngine {
     for (const v of voices) {
       v.oscillator.onended = () => {
         v.oscillator.disconnect();
+        v.gain.disconnect();
         v.pan.disconnect();
         ended();
       };

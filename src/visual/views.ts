@@ -1,9 +1,64 @@
 import { type SessionState } from '../domain/session';
 import { lcm } from '../domain/rhythm';
+import {
+  harmonicFocusAt,
+  harmonicNotes,
+  harmonicPulseEnergy,
+  type HarmonicNote,
+} from '../domain/harmonic-performance';
+import { mixNoteColors } from '../domain/note-colors';
 import { PREFERENCE_LANGUAGES, translateText, type Language } from '../i18n';
 import { createVisualTheme, type VisualTheme } from '../theme/palette';
 
 const coordinate = (value: number) => String(Number(value.toFixed(3)));
+const degrees = (radians: number) => (radians * 180) / Math.PI;
+
+const harmonyDefs = (
+  notes: HarmonicNote[],
+) => `<filter id="harmony-blur" x="-60%" y="-60%" width="220%" height="220%">
+  <feGaussianBlur stdDeviation="18"/>
+</filter>
+${notes
+  .map(
+    (note, index) =>
+      `<radialGradient id="harmony-note-${index}"><stop stop-color="${note.color}" stop-opacity=".72"/><stop offset=".52" stop-color="${note.color}" stop-opacity=".24"/><stop offset="1" stop-color="${note.color}" stop-opacity="0"/></radialGradient>`,
+  )
+  .join('')}`;
+
+const radialHarmonyField = (state: SessionState, notes: HarmonicNote[]) => {
+  if (!state.drone.enabled || !notes.length) return '';
+  const centerColor = mixNoteColors(notes.map((note) => note.color));
+  return `<g id="harmony-field" class="harmony-field radial-harmony" aria-hidden="true" opacity=".28">
+    <g class="harmony-mist" filter="url(#harmony-blur)">
+      ${notes
+        .map((note, index) => {
+          const x = 240 + Math.sin(note.angle) * 58;
+          const y = 240 - Math.cos(note.angle) * 58;
+          return `<ellipse cx="${coordinate(x)}" cy="${coordinate(y)}" rx="112" ry="62" transform="rotate(${coordinate(degrees(note.angle))} ${coordinate(x)} ${coordinate(y)})" fill="url(#harmony-note-${index})"/>`;
+        })
+        .join('')}
+      <circle cx="240" cy="240" r="76" fill="${centerColor}" opacity=".42"/>
+      <ellipse id="harmony-focus" cx="240" cy="186" rx="66" ry="38" fill="${notes[0].color}" opacity=".72"/>
+    </g>
+  </g>`;
+};
+
+const timelineHarmonyField = (state: SessionState, notes: HarmonicNote[]) => {
+  if (!state.drone.enabled || !notes.length) return '';
+  const minimum = Math.min(...notes.map((note) => note.midi));
+  const maximum = Math.max(...notes.map((note) => note.midi));
+  const spread = Math.max(1, maximum - minimum);
+  const yFor = (note: HarmonicNote) => 315 - ((note.midi - minimum) / spread) * 175;
+  return `<g id="harmony-field" class="harmony-field timeline-harmony" aria-hidden="true" opacity=".34">
+    <g filter="url(#harmony-blur)">${notes
+      .map((note, index) => {
+        const y = yFor(note);
+        return `<path class="harmony-aurora" data-note-index="${index}" data-note-y="${coordinate(y)}" d="M50 ${coordinate(y)} C146 ${coordinate(y - 22)} 338 ${coordinate(y + 22)} 434 ${coordinate(y)}" fill="none" stroke="${note.color}" stroke-width="24" stroke-linecap="round" opacity=".42"/>`;
+      })
+      .join('')}</g>
+    <circle id="harmony-focus" cx="50" cy="${coordinate(yFor(notes[0]))}" r="20" fill="${notes[0].color}" opacity=".8" filter="url(#harmony-blur)"/>
+  </g>`;
+};
 export function polygonPoints(sides: number, radius: number): string {
   return Array.from({ length: sides }, (_, vertex) => {
     const angle = (vertex / sides) * Math.PI * 2;
@@ -91,9 +146,12 @@ export function renderVisual(
   const layers = state.layers.filter((l) => l.enabled);
   const ratio = layers.map((l) => l.beatsPerCycle).join(':');
   const solo = layers.some((l) => l.solo);
+  const harmony = harmonicNotes(state);
   if (state.visualMode === 'timeline') {
     return `<svg viewBox="0 0 480 480" role="img" aria-label="Oś czasu rytmu ${ratio}">
+      <defs>${harmonyDefs(harmony)}</defs>
       <text x="240" y="65" class="svg-overline" text-anchor="middle">JEDEN WSPÓLNY CYKL</text>
+      ${timelineHarmonyField(state, harmony)}
       ${Array.from({ length: 17 }, (_, i) => `<line x1="${50 + i * 24}" x2="${50 + i * 24}" y1="110" y2="360" class="grid-line"/>`).join('')}
       ${layers.map((l, i) => `<g opacity="${l.muted || (solo && !l.solo) ? 0.25 : 1}"><text x="26" y="${155 + i * 55}" fill="${l.color}" class="svg-label">${i + 1}</text><line x1="50" x2="434" y1="${150 + i * 55}" y2="${150 + i * 55}" stroke="${l.color}" opacity=".3"/>${Array.from({ length: l.beatsPerCycle }, (_, beat) => `<circle data-beat="${beat / l.beatsPerCycle}" cx="${50 + (384 * beat) / l.beatsPerCycle}" cy="${150 + i * 55}" r="${beat === 0 ? 7 : 5}" fill="${l.color}"/>`).join('')}${options.visualMotion === 'runners' ? `<circle class="visual-runner timeline-runner" data-y="${150 + i * 55}" cx="50" cy="${150 + i * 55}" r="5" fill="${l.color}"/>` : ''}</g>`).join('')}
       ${options.visualMotion === 'pointer' ? `<line id="timeline-head" x1="50" x2="50" y1="105" y2="365" stroke="${theme.pointer}" stroke-width="1.5"/>` : ''}
@@ -103,8 +161,9 @@ export function renderVisual(
   }
   if (state.visualMode === 'polygons') {
     return `<svg viewBox="0 0 480 480" role="img" aria-label="Wielokąty rytmu ${ratio}">
-      <defs><radialGradient id="polygon-halo"><stop stop-color="${theme.halo}" stop-opacity=".07"/><stop offset="1" stop-color="${theme.halo}" stop-opacity="0"/></radialGradient></defs>
+      <defs><radialGradient id="polygon-halo"><stop stop-color="${theme.halo}" stop-opacity=".07"/><stop offset="1" stop-color="${theme.halo}" stop-opacity="0"/></radialGradient>${harmonyDefs(harmony)}</defs>
       <circle cx="240" cy="240" r="232" fill="url(#polygon-halo)"/>
+      ${radialHarmonyField(state, harmony)}
       ${layers
         .map((layer, index) => {
           const radius = 188 - index * 34;
@@ -131,8 +190,9 @@ export function renderVisual(
     </svg>`;
   }
   return `<svg viewBox="0 0 480 480" role="img" aria-label="Rytm ${ratio}. Pierwsze uderzenie na godzinie dwunastej.">
-    <defs><radialGradient id="halo"><stop stop-color="${theme.halo}" stop-opacity=".055"/><stop offset="1" stop-color="${theme.halo}" stop-opacity="0"/></radialGradient></defs>
+    <defs><radialGradient id="halo"><stop stop-color="${theme.halo}" stop-opacity=".055"/><stop offset="1" stop-color="${theme.halo}" stop-opacity="0"/></radialGradient>${harmonyDefs(harmony)}</defs>
     <circle cx="240" cy="240" r="232" fill="url(#halo)"/>
+    ${radialHarmonyField(state, harmony)}
     ${Array.from({ length: 60 }, (_, i) => {
       const a = (i * Math.PI) / 30;
       return `<line x1="${240 + Math.sin(a) * 216}" y1="${240 - Math.cos(a) * 216}" x2="${240 + Math.sin(a) * (i % 5 === 0 ? 223 : 219)}" y2="${240 - Math.cos(a) * (i % 5 === 0 ? 223 : 219)}" stroke="${i % 5 === 0 ? theme.gridStrong : theme.grid}"/>`;
@@ -153,11 +213,43 @@ export function renderVisual(
 }
 export function animateVisual(
   container: HTMLElement,
+  state: SessionState,
   position: number,
   playing: boolean,
   duration: number,
 ) {
   const phase = position % 1;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const focus = harmonicFocusAt(state, position);
+  const energy = harmonicPulseEnergy(state, position, duration, playing);
+  const harmonyField = container.querySelector<SVGGElement>('#harmony-field');
+  const harmonyFocus = container.querySelector<SVGElement>('#harmony-focus');
+  if (harmonyField && focus) {
+    const timeline = harmonyField.classList.contains('timeline-harmony');
+    harmonyField.setAttribute('opacity', coordinate(0.24 + energy * 0.52));
+    if (timeline) {
+      const aurora = harmonyField.querySelector<SVGPathElement>(
+        `.harmony-aurora[data-note-index="${focus.noteIndex}"]`,
+      );
+      harmonyFocus?.setAttribute('cx', coordinate(50 + phase * 384));
+      harmonyFocus?.setAttribute('cy', aurora?.dataset.noteY ?? '240');
+      harmonyFocus?.setAttribute('fill', focus.note.color);
+      harmonyFocus?.setAttribute('r', coordinate(16 + energy * 18));
+    } else {
+      const lean = reduced ? 0 : 22 * energy;
+      const x = Math.sin(focus.note.angle) * lean;
+      const y = -Math.cos(focus.note.angle) * lean;
+      const scale = reduced ? 1 : 1 + energy * 0.055;
+      harmonyField.setAttribute(
+        'transform',
+        `translate(${coordinate(x)} ${coordinate(y)}) scale(${coordinate(scale)} ${coordinate(scale)}) translate(${coordinate((-240 * (scale - 1)) / scale)} ${coordinate((-240 * (scale - 1)) / scale)})`,
+      );
+      harmonyFocus?.setAttribute('fill', focus.note.color);
+      harmonyFocus?.setAttribute('cx', coordinate(240 + Math.sin(focus.note.angle) * 54));
+      harmonyFocus?.setAttribute('cy', coordinate(240 - Math.cos(focus.note.angle) * 54));
+      harmonyFocus?.setAttribute('opacity', coordinate(0.35 + energy * 0.55));
+    }
+  }
   container
     .querySelector('#circle-head, #polygon-head')
     ?.setAttribute('transform', `rotate(${phase * 360} 240 240)`);
@@ -188,7 +280,6 @@ export function animateVisual(
       language,
     );
   }
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   container.querySelectorAll<SVGCircleElement>('[data-beat]').forEach((dot) => {
     const distance = (phase - Number(dot.dataset.beat) + 1) % 1;
     dot.classList.toggle('pulse', playing && !reduced && distance * duration < 0.12);

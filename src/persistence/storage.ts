@@ -1,4 +1,5 @@
 import { defaultSession, isSession, type SessionState } from '../domain/session';
+import { defaultNotePalette } from '../domain/note-colors';
 import { LAYER_COLORS } from '../theme/palette';
 export const STORAGE_KEY = 'polyrhythmer.session.v1';
 const object = (value: unknown): value is Record<string, unknown> =>
@@ -34,6 +35,7 @@ export function upgradeSession(value: unknown): SessionState | null {
   const candidate = {
     ...value,
     ...(!('subdivision' in value) ? { subdivision: 0 } : {}),
+    ...(!('notePalette' in value) ? { notePalette: defaultNotePalette() } : {}),
     layers,
   };
   return isSession(candidate) ? candidate : null;

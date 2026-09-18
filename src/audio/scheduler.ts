@@ -1,4 +1,5 @@
 import { eventsInWindow, rhythmEvents, subdivisionEvents } from '../domain/rhythm';
+import { harmonicFocusAt } from '../domain/harmonic-performance';
 import type { SessionState } from '../domain/session';
 import { TransportClock } from '../transport/clock';
 import { ClickVoices } from './voices';
@@ -10,6 +11,7 @@ export class Scheduler {
     private clock: TransportClock,
     private voices: ClickVoices,
     private state: () => SessionState,
+    private onHarmonyAccent: (noteIndex: number, when: number) => void = () => {},
   ) {}
   start() {
     this.cursor = this.clock.position(this.context.currentTime);
@@ -40,10 +42,26 @@ export class Scheduler {
         event.beat % state.subdivision === 0,
       );
     }
-    for (const event of eventsInWindow(rhythmEvents(layers), from, to)) {
+    const rhythmWindow = eventsInWindow(rhythmEvents(layers), from, to);
+    for (const event of rhythmWindow) {
       const layer = layers.find((l) => l.id === event.layerId)!;
       if (!layer.muted && (!solo || layer.solo))
         this.voices.play(layer, event.beat, this.clock.timeAt(event.cyclePosition));
+    }
+    const accentPositions = [
+      ...new Set(
+        rhythmWindow
+          .filter((event) => {
+            const layer = layers.find((candidate) => candidate.id === event.layerId)!;
+            return !layer.muted && (!solo || layer.solo);
+          })
+          .map((event) => event.cyclePosition),
+      ),
+    ];
+    for (const cyclePosition of accentPositions) {
+      const focus = harmonicFocusAt(state, cyclePosition);
+      if (state.drone.enabled && focus)
+        this.onHarmonyAccent(focus.noteIndex, this.clock.timeAt(cyclePosition));
     }
     this.cursor = to;
   }

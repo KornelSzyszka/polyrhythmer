@@ -1,4 +1,5 @@
 import { MODES, type Mode } from './harmony';
+import { defaultNotePalette, NOTE_TIMBRES, type NotePalette, type NoteTimbre } from './note-colors';
 import { LAYER_COLORS } from '../theme/palette';
 export const SOUNDS = ['wood', 'sine', 'bell'] as const;
 export const MAX_LAYERS = 4;
@@ -32,6 +33,7 @@ export interface SessionState {
   subdivision: number;
   layers: RhythmLayer[];
   drone: DroneState;
+  notePalette: NotePalette;
   visualMode: 'circle' | 'timeline' | 'polygons';
   masterGain: number;
 }
@@ -63,6 +65,7 @@ export const defaultSession = (): SessionState => ({
     filterHz: 1200,
     spread: 0.5,
   },
+  notePalette: defaultNotePalette(),
   visualMode: 'circle',
   masterGain: 0.7,
 });
@@ -103,6 +106,7 @@ export function isSession(v: unknown): v is SessionState {
     return false;
   if (new Set(v.layers.map((l) => l.id)).size !== v.layers.length) return false;
   const d = v.drone;
+  const notePalette = v.notePalette;
   return (
     object(d) &&
     typeof d.enabled === 'boolean' &&
@@ -112,6 +116,17 @@ export function isSession(v: unknown): v is SessionState {
     ['root', 'fifth', 'octave', 'triad'].includes(String(d.chord)) &&
     range(d.gain, 0, 1) &&
     range(d.filterHz, 100, 8000) &&
-    range(d.spread, 0, 1)
+    range(d.spread, 0, 1) &&
+    object(notePalette) &&
+    range(notePalette.referenceOctave, 1, 5, true) &&
+    Array.isArray(notePalette.notes) &&
+    notePalette.notes.length === 12 &&
+    notePalette.notes.every(
+      (note) =>
+        object(note) &&
+        typeof note.color === 'string' &&
+        /^#[0-9a-f]{6}$/i.test(note.color) &&
+        NOTE_TIMBRES.includes(note.timbre as NoteTimbre),
+    )
   );
 }

@@ -6,6 +6,7 @@ import {
   type SessionState,
 } from '../domain/session';
 import { lcm, rhythmEvents } from '../domain/rhythm';
+import { NOTE_TIMBRES, type NoteTimbre } from '../domain/note-colors';
 import { loadSession, saveSession } from '../persistence/storage';
 import {
   availablePalettes,
@@ -23,6 +24,12 @@ import { renderVisual, animateVisual } from '../visual/views';
 import { createVisualTheme } from '../theme/palette';
 
 const notes = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const timbreNames: Record<NoteTimbre, string> = {
+  sine: 'Sinus',
+  triangle: 'Trójkąt',
+  sawtooth: 'Piła',
+  square: 'Prostokąt',
+};
 const modeNames = {
   chromatic: 'Chromatyczny',
   major: 'Durowy',
@@ -112,6 +119,7 @@ export class App {
     const frame = () => {
       animateVisual(
         this.root.querySelector('#visual')!,
+        this.state,
         this.engine.position,
         this.engine.clock.running,
         this.engine.clock.duration,
@@ -179,7 +187,13 @@ export class App {
           })
             .map(([v, n]) => `<option value="${v}" ${selected(s.drone.chord, v)}>${n}</option>`)
             .join('')}</select></label></div>
-          <div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div></div></section>
+          <div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div>
+          <details class="note-palette"><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
+            .map(
+              (style, index) =>
+                `<div class="note-style"><strong>${notes[index]}</strong><label><span>Kolor</span><input id="note-color-${index}" data-note-index="${index}" type="color" value="${style.color}" aria-label="Kolor nuty ${notes[index]}"></label><label><span>Barwa</span><select id="note-timbre-${index}" data-note-index="${index}" aria-label="Barwa nuty ${notes[index]}">${NOTE_TIMBRES.map((timbre) => `<option value="${timbre}" ${selected(style.timbre, timbre)}>${timbreNames[timbre]}</option>`).join('')}</select></label></div>`,
+            )
+            .join('')}</div></details></div></section>
         <details class="event-details"><summary>Jak spotykają się rytmy? <span>${steps} wspólnych kroków ↗</span></summary><p>Każda warstwa dzieli ten sam cykl na równe odcinki. Krok 0 to wspólny początek.</p><table><caption>Uderzenia na siatce ${steps} kroków</caption><thead><tr><th>Warstwa</th><th>Kroki uderzeń</th></tr></thead><tbody>${enabledLayers
           .map(
             (l, i) =>
@@ -486,6 +500,14 @@ export class App {
     else if (input.id === 'subdivision') this.state.subdivision = value;
     else if (input.id.startsWith('beats-')) this.state.layers[index].beatsPerCycle = value;
     else if (input.id.startsWith('color-')) this.state.layers[index].color = input.value;
+    else if (input.id.startsWith('note-color-'))
+      this.state.notePalette.notes[Number(input.dataset.noteIndex)].color = input.value;
+    else if (
+      input.id.startsWith('note-timbre-') &&
+      NOTE_TIMBRES.includes(input.value as NoteTimbre)
+    )
+      this.state.notePalette.notes[Number(input.dataset.noteIndex)].timbre =
+        input.value as NoteTimbre;
     else if (input.id === 'root') this.state.drone.root = value;
     else if (input.id === 'octave') this.state.drone.octave = value;
     else if (input.id === 'mode')
