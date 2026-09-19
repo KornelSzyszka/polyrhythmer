@@ -158,7 +158,7 @@ export function renderVisual(
       ${layers.map((l, i) => `<g opacity="${l.muted || (solo && !l.solo) ? 0.25 : 1}"><text x="26" y="${155 + i * 55}" fill="${l.color}" class="svg-label">${i + 1}</text><line x1="50" x2="434" y1="${150 + i * 55}" y2="${150 + i * 55}" stroke="${l.color}" opacity=".3"/>${Array.from({ length: l.beatsPerCycle }, (_, beat) => `<circle data-beat="${beat / l.beatsPerCycle}" cx="${50 + (384 * beat) / l.beatsPerCycle}" cy="${150 + i * 55}" r="${beat === 0 ? 7 : 5}" fill="${l.color}"/>`).join('')}${options.visualMotion === 'runners' ? `<circle class="visual-runner timeline-runner" data-y="${150 + i * 55}" cx="50" cy="${150 + i * 55}" r="5" fill="${l.color}"/>` : ''}</g>`).join('')}
       ${options.visualMotion === 'pointer' ? `<line id="timeline-head" x1="50" x2="50" y1="105" y2="365" stroke="${theme.pointer}" stroke-width="1.5"/>` : ''}
       ${subdivisionMarkers(state.cycleBeats, state.subdivision, 'timeline')}
-      ${Array.from(beatSteps, (step) => `<text x="${coordinate(50 + (384 * step) / steps)}" y="395" class="svg-label timeline-step-number" data-step-label="${step}" text-anchor="middle">${step}</text>`).join('')}
+      ${Array.from(beatSteps, (step, index) => `<text x="${coordinate(50 + (384 * step) / steps)}" y="${index % 2 === 0 ? 395 : 100}" class="svg-label timeline-step-number" data-step-label="${step}" data-step-label-side="${index % 2 === 0 ? 'bottom' : 'top'}" text-anchor="middle">${step}</text>`).join('')}
       <text x="434" y="395" class="svg-label" text-anchor="end">1 cykl</text>
       <text x="240" y="445" class="svg-label" text-anchor="middle">${steps} wspólnych kroków</text></svg>`;
   }

@@ -116,5 +116,9 @@ describe('polygon visualization', () => {
     ]);
     expect(svg).not.toContain('data-step-label="1"');
     expect(svg).not.toContain('data-step-label="5"');
+    expect(svg).toContain('data-step-label="0" data-step-label-side="bottom"');
+    expect(svg).toContain('data-step-label="2" data-step-label-side="top"');
+    expect(svg).toContain('data-step-label="3" data-step-label-side="bottom"');
+    expect(svg).toContain('data-step-label="4" data-step-label-side="top"');
   });
 });
