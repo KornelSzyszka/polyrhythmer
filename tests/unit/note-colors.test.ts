@@ -61,6 +61,22 @@ describe('harmonic performance focus', () => {
 });
 
 describe('note palette session contract', () => {
+  it('uses the selected note palette as the default', () => {
+    expect(defaultNotePalette().notes.map((note) => note.color)).toEqual([
+      '#e9bd3d',
+      '#d3753a',
+      '#74939d',
+      '#475053',
+      '#5d350f',
+      '#60c2a0',
+      '#296942',
+      '#4a3c35',
+      '#35271b',
+      '#8c2223',
+      '#3b0e16',
+      '#221643',
+    ]);
+  });
   it('validates twelve persisted note assignments', () => {
     const session = defaultSession();
     expect(session.notePalette.notes).toHaveLength(12);

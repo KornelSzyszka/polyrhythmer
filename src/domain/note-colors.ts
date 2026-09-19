@@ -12,18 +12,18 @@ export interface NotePalette {
 }
 
 const DEFAULT_NOTE_COLORS = [
-  '#ef6f6c',
-  '#f08a4b',
-  '#e5b94f',
-  '#b8c95a',
-  '#72c47b',
-  '#4fc2a0',
-  '#4bbbcf',
-  '#5b9bea',
-  '#7c7ee8',
-  '#a56fe0',
-  '#ce67be',
-  '#e6688a',
+  '#e9bd3d',
+  '#d3753a',
+  '#74939d',
+  '#475053',
+  '#5d350f',
+  '#60c2a0',
+  '#296942',
+  '#4a3c35',
+  '#35271b',
+  '#8c2223',
+  '#3b0e16',
+  '#221643',
 ] as const;
 
 interface Oklab {
