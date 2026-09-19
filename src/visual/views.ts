@@ -1,5 +1,5 @@
 import { type SessionState } from '../domain/session';
-import { lcm } from '../domain/rhythm';
+import { lcm, rhythmEvents } from '../domain/rhythm';
 import {
   harmonicFocusAt,
   harmonicNotes,
@@ -148,16 +148,19 @@ export function renderVisual(
   const solo = layers.some((l) => l.solo);
   const harmony = harmonicNotes(state);
   if (state.visualMode === 'timeline') {
+    const steps = lcm(layers.map((layer) => layer.beatsPerCycle));
+    const beatSteps = new Set(rhythmEvents(layers).map((event) => event.step));
     return `<svg viewBox="0 0 480 480" role="img" aria-label="Oś czasu rytmu ${ratio}">
       <defs>${harmonyDefs(harmony)}</defs>
       <text x="240" y="65" class="svg-overline" text-anchor="middle">JEDEN WSPÓLNY CYKL</text>
       ${timelineHarmonyField(state, harmony)}
-      ${Array.from({ length: 17 }, (_, i) => `<line x1="${50 + i * 24}" x2="${50 + i * 24}" y1="110" y2="360" class="grid-line"/>`).join('')}
+      ${Array.from({ length: steps + 1 }, (_, i) => `<line x1="${coordinate(50 + (384 * i) / steps)}" x2="${coordinate(50 + (384 * i) / steps)}" y1="110" y2="360" class="grid-line"/>`).join('')}
       ${layers.map((l, i) => `<g opacity="${l.muted || (solo && !l.solo) ? 0.25 : 1}"><text x="26" y="${155 + i * 55}" fill="${l.color}" class="svg-label">${i + 1}</text><line x1="50" x2="434" y1="${150 + i * 55}" y2="${150 + i * 55}" stroke="${l.color}" opacity=".3"/>${Array.from({ length: l.beatsPerCycle }, (_, beat) => `<circle data-beat="${beat / l.beatsPerCycle}" cx="${50 + (384 * beat) / l.beatsPerCycle}" cy="${150 + i * 55}" r="${beat === 0 ? 7 : 5}" fill="${l.color}"/>`).join('')}${options.visualMotion === 'runners' ? `<circle class="visual-runner timeline-runner" data-y="${150 + i * 55}" cx="50" cy="${150 + i * 55}" r="5" fill="${l.color}"/>` : ''}</g>`).join('')}
       ${options.visualMotion === 'pointer' ? `<line id="timeline-head" x1="50" x2="50" y1="105" y2="365" stroke="${theme.pointer}" stroke-width="1.5"/>` : ''}
       ${subdivisionMarkers(state.cycleBeats, state.subdivision, 'timeline')}
-      <text x="50" y="395" class="svg-label">0</text><text x="434" y="395" class="svg-label" text-anchor="end">1 cykl</text>
-      <text x="240" y="445" class="svg-label" text-anchor="middle">${lcm(layers.map((l) => l.beatsPerCycle))} wspólnych kroków</text></svg>`;
+      ${Array.from(beatSteps, (step) => `<text x="${coordinate(50 + (384 * step) / steps)}" y="395" class="svg-label timeline-step-number" data-step-label="${step}" text-anchor="middle">${step}</text>`).join('')}
+      <text x="434" y="395" class="svg-label" text-anchor="end">1 cykl</text>
+      <text x="240" y="445" class="svg-label" text-anchor="middle">${steps} wspólnych kroków</text></svg>`;
   }
   if (state.visualMode === 'polygons') {
     return `<svg viewBox="0 0 480 480" role="img" aria-label="Wielokąty rytmu ${ratio}">

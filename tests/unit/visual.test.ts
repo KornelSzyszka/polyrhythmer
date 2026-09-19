@@ -104,4 +104,17 @@ describe('polygon visualization', () => {
     expect(svg).toContain('class="harmony-field timeline-harmony"');
     expect(svg.match(/class="harmony-aurora"/g)).toHaveLength(3);
   });
+
+  it('numbers only shared timeline steps that contain a beat', () => {
+    const state = defaultSession();
+    state.visualMode = 'timeline';
+
+    const svg = renderVisual(state);
+
+    expect([...svg.matchAll(/data-step-label="(\d+)"/g)].map((match) => Number(match[1]))).toEqual([
+      0, 2, 3, 4,
+    ]);
+    expect(svg).not.toContain('data-step-label="1"');
+    expect(svg).not.toContain('data-step-label="5"');
+  });
 });
