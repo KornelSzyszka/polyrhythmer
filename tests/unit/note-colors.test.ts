@@ -7,6 +7,7 @@ import {
   perceptualLightness,
 } from '../../src/domain/note-colors';
 import {
+  circleOfFifthsIndex,
   harmonicFocusAt,
   harmonicNotes,
   harmonicPulseEnergy,
@@ -37,6 +38,12 @@ describe('note colors', () => {
 });
 
 describe('harmonic performance focus', () => {
+  it('maps chromatic pitch classes onto the circle of fifths', () => {
+    expect(Array.from({ length: 12 }, (_, pitchClass) => circleOfFifthsIndex(pitchClass))).toEqual([
+      0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5,
+    ]);
+  });
+
   it('cycles chord tones on unique audible rhythm positions', () => {
     const state = defaultSession();
     state.drone.enabled = true;
@@ -77,6 +84,7 @@ describe('note palette session contract', () => {
       '#221643',
     ]);
   });
+
   it('validates twelve persisted note assignments', () => {
     const session = defaultSession();
     expect(session.notePalette.notes).toHaveLength(12);

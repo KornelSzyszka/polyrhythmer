@@ -11,7 +11,7 @@ export class Scheduler {
     private clock: TransportClock,
     private voices: ClickVoices,
     private state: () => SessionState,
-    private onHarmonyAccent: (noteIndex: number, when: number) => void = () => {},
+    private onHarmonyAccent: (noteIndex: number, when: number, position: number) => void = () => {},
   ) {}
   start() {
     this.cursor = this.clock.position(this.context.currentTime);
@@ -39,7 +39,9 @@ export class Scheduler {
     )) {
       this.voices.playReference(
         this.clock.timeAt(event.cyclePosition),
+        event.beat,
         event.beat % state.subdivision === 0,
+        state.clickSound,
       );
     }
     const rhythmWindow = eventsInWindow(rhythmEvents(layers), from, to);
@@ -61,7 +63,7 @@ export class Scheduler {
     for (const cyclePosition of accentPositions) {
       const focus = harmonicFocusAt(state, cyclePosition);
       if (state.drone.enabled && focus)
-        this.onHarmonyAccent(focus.noteIndex, this.clock.timeAt(cyclePosition));
+        this.onHarmonyAccent(focus.noteIndex, this.clock.timeAt(cyclePosition), cyclePosition);
     }
     this.cursor = to;
   }

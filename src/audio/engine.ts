@@ -36,7 +36,10 @@ export class AudioEngine {
         this.clock,
         this.clicks,
         () => this.state,
-        (noteIndex, when) => this.drone?.accent(noteIndex, when),
+        (noteIndex, when, position) => {
+          this.drone?.update(this.state, true, position);
+          this.drone?.accent(noteIndex, when);
+        },
       );
       this.context.onstatechange = () => {
         if (this.context?.state !== 'running' && this.clock.running) {
@@ -51,7 +54,7 @@ export class AudioEngine {
       throw new Error('Przeglądarka wstrzymała audio. Naciśnij Start, aby spróbować ponownie.');
     if (this.clock.running) return;
     this.clock.start(this.context.currentTime + 0.025);
-    this.drone!.update(this.state.drone, this.state.notePalette, true);
+    this.drone!.update(this.state, true, this.clock.position(this.context.currentTime));
     this.scheduler!.start();
   }
   pause() {
@@ -83,6 +86,6 @@ export class AudioEngine {
       }
     }
     this.master?.gain.setTargetAtTime(state.masterGain, now, 0.025);
-    this.drone?.update(state.drone, state.notePalette, this.clock.running);
+    this.drone?.update(state, this.clock.running, this.clock.position(now));
   }
 }

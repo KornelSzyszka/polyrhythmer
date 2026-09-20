@@ -1,4 +1,9 @@
-import { defaultSession, isSession, type SessionState } from '../domain/session';
+import {
+  defaultProgression,
+  defaultSession,
+  isSession,
+  type SessionState,
+} from '../domain/session';
 import { defaultNotePalette } from '../domain/note-colors';
 import { LAYER_COLORS } from '../theme/palette';
 export const STORAGE_KEY = 'polyrhythmer.session.v1';
@@ -35,7 +40,25 @@ export function upgradeSession(value: unknown): SessionState | null {
   const candidate = {
     ...value,
     ...(!('subdivision' in value) ? { subdivision: 0 } : {}),
+    ...(!('clickSound' in value) ? { clickSound: defaultSession().clickSound } : {}),
     ...(!('notePalette' in value) ? { notePalette: defaultNotePalette() } : {}),
+    ...(!object(value.drone) || !('progression' in value.drone)
+      ? {
+          drone: {
+            ...(object(value.drone) ? value.drone : {}),
+            progression: defaultProgression(),
+          },
+        }
+      : {
+          drone: {
+            ...value.drone,
+            progression: Array.isArray(value.drone.progression)
+              ? value.drone.progression.map((step, index) =>
+                  object(step) && !('startStep' in step) ? { ...step, startStep: index } : step,
+                )
+              : value.drone.progression,
+          },
+        }),
     layers,
   };
   return isSession(candidate) ? candidate : null;

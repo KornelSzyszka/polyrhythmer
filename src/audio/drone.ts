@@ -1,6 +1,6 @@
 import { midiToHz, voicing } from '../domain/harmony';
-import { pitchClassForMidi, type NotePalette } from '../domain/note-colors';
-import type { DroneState } from '../domain/session';
+import { pitchClassForMidi } from '../domain/note-colors';
+import { progressionStepAt, type SessionState } from '../domain/session';
 interface DroneVoice {
   oscillator: OscillatorNode;
   gain: GainNode;
@@ -20,8 +20,9 @@ export class DroneEngine {
   get activeCount() {
     return this.voices.length + (this.lfo ? 1 : 0) + this.retiring;
   }
-  update(state: DroneState, notePalette: NotePalette, playing: boolean) {
-    if (!playing || !state.enabled) {
+  update(state: SessionState, playing: boolean, position = 0) {
+    const drone = state.drone;
+    if (!playing || !drone.enabled) {
       this.stop();
       return;
     }
@@ -40,7 +41,8 @@ export class DroneEngine {
       this.lfo.connect(this.modulation).connect(this.filter.frequency);
       this.lfo.start();
     }
-    const notes = voicing((state.octave + 1) * 12 + state.root, state.mode, state.chord);
+    const step = progressionStepAt(state, position);
+    const notes = voicing((drone.octave + 1) * 12 + step.root, drone.mode, step.chord);
     // Fixed three voices: retune and fade the bus; changing harmony never accumulates oscillators.
     if (!this.voices.length) {
       for (let i = 0; i < 3; i++) {
@@ -49,7 +51,7 @@ export class DroneEngine {
         voiceGain.gain.value = 0.78;
         const pan = this.context.createStereoPanner();
         const note = notes[i % notes.length];
-        oscillator.type = notePalette.notes[pitchClassForMidi(note)].timbre;
+        oscillator.type = state.notePalette.notes[pitchClassForMidi(note)].timbre;
         oscillator.connect(voiceGain).connect(pan).connect(this.filter!);
         oscillator.frequency.value = midiToHz(note);
         oscillator.detune.value = (i - 1) * 3;
@@ -59,12 +61,12 @@ export class DroneEngine {
     }
     this.voices.forEach((voice, i) => {
       const note = notes[i % notes.length];
-      voice.oscillator.type = notePalette.notes[pitchClassForMidi(note)].timbre;
+      voice.oscillator.type = state.notePalette.notes[pitchClassForMidi(note)].timbre;
       voice.oscillator.frequency.setTargetAtTime(midiToHz(note), now, 0.08);
-      voice.pan.pan.setTargetAtTime((i - 1) * state.spread, now, 0.04);
+      voice.pan.pan.setTargetAtTime((i - 1) * drone.spread, now, 0.04);
     });
-    this.filter!.frequency.setTargetAtTime(state.filterHz, now, 0.06);
-    this.gain.gain.setTargetAtTime(state.gain * 0.12, now, 0.08);
+    this.filter!.frequency.setTargetAtTime(drone.filterHz, now, 0.06);
+    this.gain.gain.setTargetAtTime(drone.gain * 0.12, now, 0.08);
   }
   accent(noteIndex: number, when: number) {
     const voice = this.voices[noteIndex % this.voices.length];

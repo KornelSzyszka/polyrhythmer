@@ -67,7 +67,62 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Jedna ćwierćnuta = jeden puls BPM': 'One quarter note = one BPM pulse',
     'Podział podpórki': 'Support subdivision',
     'Regularny klik pomaga utrzymać wspólny puls': 'A steady click helps maintain the common pulse',
+    'Brzmienie kliku': 'Click sound',
+    'BRZMIENIE KLIKU': 'CLICK SOUND',
+    'Ustawienia kliku': 'Click settings',
+    'Zamknij ustawienia kliku': 'Close click settings',
+    'Wybierz charakter i delikatne rozstrojenie kolejnych uderzeń.':
+      'Choose the character and subtle detuning of successive clicks.',
+    Preset: 'Preset',
+    Wysokość: 'Pitch',
+    'Różnica między klikami': 'Difference between clicks',
     'TŁO DLA TWOJEGO RYTMU': 'A BED FOR YOUR RHYTHM',
+    RESONARA: 'RESONARA',
+    'Warstwa harmoniczna': 'Harmonic layer',
+    'Skala, progresja i stałe tło dronowe.': 'Scale, progression and sustained drone bed.',
+    PROGRESJA: 'PROGRESSION',
+    'Akordy zaczynają się na wybranych stepach.': 'Chords start on selected steps.',
+    'Dodaj akord +': 'Add chord +',
+    'Dodaj pierwszy akord do progresji.': 'Add the first chord to the progression.',
+    'STARTING STEP': 'STARTING STEP',
+    'Wybierz starting step, ton i akord dostępny w aktualnej skali.':
+      'Choose a starting step, root and chord available in the current scale.',
+    'Edytuj akord': 'Edit chord',
+    'Usuń akord od kroku': 'Delete chord from step',
+    'TON STARTOWY': 'STARTING NOTE',
+    SKALA: 'SCALE',
+    'COMMON STEPS': 'COMMON STEPS',
+    'Każdy krok może być nutą lub akordem.': 'Each step can be a note or a chord.',
+    'Kliknij krok, aby ustawić akord ze skali.': 'Click a step to set a chord from the scale.',
+    'Ustaw akord dla kroku': 'Set chord for step',
+    'Edytuj ↗': 'Edit ↗',
+    'Zamknij ustawienia akordu': 'Close chord settings',
+    'Wybierz ton i akord dostępny w aktualnej skali.':
+      'Choose a root and a chord available in the current scale.',
+    'TON AKORDU': 'CHORD ROOT',
+    AKORD: 'CHORD',
+    'Ustaw akord': 'Set chord',
+    Chromatyczna: 'Chromatic',
+    Durowa: 'Major',
+    Molowa: 'Minor',
+    Dorycka: 'Dorian',
+    Frygijska: 'Phrygian',
+    Pentatoniczna: 'Pentatonic',
+    Pentatoniczny: 'Pentatonic',
+    'Nuta / pryma': 'Note / root',
+    'Akord molowy': 'Minor chord',
+    'Akord durowy': 'Major chord',
+    'Pryma + kwinta': 'Root + fifth',
+    'Pryma + oktawa': 'Root + octave',
+    Trójdźwięk: 'Triad',
+    'Wszystkie dźwięki — napięcie i pełna swoboda.': 'Every note — tension and complete freedom.',
+    'Jasna i stabilna; naturalny punkt wyjścia.': 'Bright and stable; a natural starting point.',
+    'Ciemniejsza, miękka i introspektywna.': 'Darker, softer and introspective.',
+    'Molowa z podniesioną sekstą; pulsująca i otwarta.':
+      'Minor with a raised sixth; open and propulsive.',
+    'Napięta dzięki obniżonej sekundzie.': 'Tense through its lowered second.',
+    'Pięć dźwięków; prosta, przestrzenna i odporna na zgrzyty.':
+      'Five notes; simple, spacious and forgiving.',
     'Dron tonalny': 'Tonal drone',
     'Stały ton. Więcej przestrzeni.': 'A sustained tone. More space.',
     'TON PODSTAWOWY': 'ROOT NOTE',
@@ -159,6 +214,10 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Warstwy rytmu': 'Rhythmusebenen',
     'Dodaj warstwę': 'Ebene hinzufügen',
     'Dron tonalny': 'Klangteppich',
+    'Brzmienie kliku': 'Klickklang',
+    Preset: 'Preset',
+    Wysokość: 'Tonhöhe',
+    'Różnica między klikami': 'Unterschied zwischen Klicks',
     Głośność: 'Lautstärke',
     'Głośność główna': 'Hauptlautstärke',
     'Gotowy do gry': 'Spielbereit',
@@ -195,6 +254,10 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Warstwy rytmu': 'Livelli ritmici',
     'Dodaj warstwę': 'Aggiungi livello',
     'Dron tonalny': 'Drone tonale',
+    'Brzmienie kliku': 'Suono del clic',
+    Preset: 'Preset',
+    Wysokość: 'Altezza',
+    'Różnica między klikami': 'Differenza tra i clic',
     Głośność: 'Volume',
     'Głośność główna': 'Volume principale',
     'Gotowy do gry': 'Pronto a suonare',
@@ -231,6 +294,10 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Warstwy rytmu': 'Capas rítmicas',
     'Dodaj warstwę': 'Añadir capa',
     'Dron tonalny': 'Drone tonal',
+    'Brzmienie kliku': 'Sonido del clic',
+    Preset: 'Preset',
+    Wysokość: 'Altura',
+    'Różnica między klikami': 'Diferencia entre clics',
     Głośność: 'Volumen',
     'Głośność główna': 'Volumen principal',
     'Gotowy do gry': 'Listo para tocar',
@@ -267,6 +334,10 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Warstwy rytmu': 'Camadas rítmicas',
     'Dodaj warstwę': 'Adicionar camada',
     'Dron tonalny': 'Drone tonal',
+    'Brzmienie kliku': 'Som do clique',
+    Preset: 'Predefinição',
+    Wysokość: 'Altura',
+    'Różnica między klikami': 'Diferença entre cliques',
     Głośność: 'Volume',
     'Głośność główna': 'Volume principal',
     'Gotowy do gry': 'Pronto para tocar',
@@ -298,6 +369,8 @@ const terms: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     Drewno: 'Wood',
     Miękki: 'Soft',
     Dzwonek: 'Bell',
+    Drewniany: 'Wooden',
+    Szklisty: 'Glassy',
     'uderzeń / cykl': 'beats / cycle',
     'Barwy nut': 'Note colours',
     'Oktawa bazowa: 3': 'Reference octave: 3',
@@ -327,6 +400,8 @@ const terms: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     Drewno: 'Holz',
     Miękki: 'Weich',
     Dzwonek: 'Glocke',
+    Drewniany: 'Holz',
+    Szklisty: 'Gläsern',
     'uderzeń / cykl': 'Schläge / Zyklus',
     'Barwy nut': 'Notenfarben',
     'Oktawa bazowa: 3': 'Referenzoktave: 3',
@@ -356,6 +431,8 @@ const terms: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     Drewno: 'Legno',
     Miękki: 'Morbido',
     Dzwonek: 'Campanella',
+    Drewniany: 'Legno',
+    Szklisty: 'Vetro',
     'uderzeń / cykl': 'colpi / ciclo',
     'Barwy nut': 'Colori delle note',
     'Oktawa bazowa: 3': 'Ottava di riferimento: 3',
@@ -385,6 +462,8 @@ const terms: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     Drewno: 'Madera',
     Miękki: 'Suave',
     Dzwonek: 'Campana',
+    Drewniany: 'Madera',
+    Szklisty: 'Vítreo',
     'uderzeń / cykl': 'golpes / ciclo',
     'Barwy nut': 'Colores de notas',
     'Oktawa bazowa: 3': 'Octava de referencia: 3',
@@ -414,6 +493,8 @@ const terms: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     Drewno: 'Madeira',
     Miękki: 'Suave',
     Dzwonek: 'Sino',
+    Drewniany: 'Madeira',
+    Szklisty: 'Vítreo',
     'uderzeń / cykl': 'toques / ciclo',
     'Barwy nut': 'Cores das notas',
     'Oktawa bazowa: 3': 'Oitava de referência: 3',
@@ -470,6 +551,25 @@ export const translateText = (value: string, language: Language): string => {
   const duration = source.match(/^([\d.]+) s \/ cykl$/);
   if (duration)
     return `${leading}${duration[1]} s / ${language === 'en' ? 'cycle' : language === 'de' ? 'Zyklus' : language === 'it' ? 'ciclo' : language === 'es' ? 'ciclo' : 'ciclo'}${trailing}`;
+  const semitone = source.match(/^([+-]?\d+) półtonu$/);
+  if (semitone) {
+    const unit =
+      language === 'en'
+        ? 'semitones'
+        : language === 'de'
+          ? 'Halbtöne'
+          : language === 'it'
+            ? 'semitoni'
+            : language === 'es'
+              ? 'semitonos'
+              : 'semitons';
+    return `${leading}${semitone[1]} ${unit}${trailing}`;
+  }
+  const cents = source.match(/^(\d+) centów$/);
+  if (cents) {
+    const unit = language === 'en' ? 'cents' : language === 'de' ? 'Cent' : 'cent';
+    return `${leading}${cents[1]} ${unit}${trailing}`;
+  }
   const noteControl = source.match(/^(Kolor|Barwa) nuty (.+)$/);
   if (noteControl) {
     const labels = {

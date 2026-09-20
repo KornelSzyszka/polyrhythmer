@@ -2,6 +2,7 @@ import { voicing } from './harmony';
 import { colorForMidi, octaveForMidi, pitchClassForMidi } from './note-colors';
 import { rhythmEvents } from './rhythm';
 import type { SessionState } from './session';
+import { progressionStepAt } from './session';
 
 export interface HarmonicNote {
   midi: number;
@@ -21,12 +22,11 @@ export interface HarmonicFocus {
 
 const modulo = (value: number, divisor: number) => ((value % divisor) + divisor) % divisor;
 
-export function harmonicNotes(state: SessionState): HarmonicNote[] {
-  const notes = voicing(
-    (state.drone.octave + 1) * 12 + state.drone.root,
-    state.drone.mode,
-    state.drone.chord,
-  );
+export const circleOfFifthsIndex = (pitchClass: number) => modulo(pitchClass * 7, 12);
+
+export function harmonicNotes(state: SessionState, position = 0): HarmonicNote[] {
+  const step = progressionStepAt(state, position);
+  const notes = voicing((state.drone.octave + 1) * 12 + step.root, state.drone.mode, step.chord);
   return notes.map((midi) => {
     const pitchClass = pitchClassForMidi(midi);
     return {
@@ -35,7 +35,7 @@ export function harmonicNotes(state: SessionState): HarmonicNote[] {
       octave: octaveForMidi(midi),
       color: colorForMidi(midi, state.notePalette),
       timbre: state.notePalette.notes[pitchClass].timbre,
-      angle: (pitchClass / 12) * Math.PI * 2,
+      angle: (circleOfFifthsIndex(pitchClass) / 12) * Math.PI * 2,
     };
   });
 }
@@ -49,7 +49,7 @@ export function harmonicEventPositions(state: SessionState): number[] {
 }
 
 export function harmonicFocusAt(state: SessionState, position: number): HarmonicFocus | null {
-  const notes = harmonicNotes(state);
+  const notes = harmonicNotes(state, position);
   const positions = harmonicEventPositions(state);
   if (!notes.length || !positions.length) return null;
   const cycle = Math.floor(position);

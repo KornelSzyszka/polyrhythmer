@@ -28,7 +28,7 @@ ${notes
 const radialHarmonyField = (state: SessionState, notes: HarmonicNote[]) => {
   if (!state.drone.enabled || !notes.length) return '';
   const centerColor = mixNoteColors(notes.map((note) => note.color));
-  return `<g id="harmony-field" class="harmony-field radial-harmony" aria-hidden="true" opacity=".28">
+  return `<g id="harmony-field" class="harmony-field radial-harmony" aria-hidden="true" opacity=".34">
     <g class="harmony-mist" filter="url(#harmony-blur)">
       ${notes
         .map((note, index) => {
@@ -37,7 +37,7 @@ const radialHarmonyField = (state: SessionState, notes: HarmonicNote[]) => {
           return `<ellipse cx="${coordinate(x)}" cy="${coordinate(y)}" rx="112" ry="62" transform="rotate(${coordinate(degrees(note.angle))} ${coordinate(x)} ${coordinate(y)})" fill="url(#harmony-note-${index})"/>`;
         })
         .join('')}
-      <circle cx="240" cy="240" r="76" fill="${centerColor}" opacity=".42"/>
+      <circle cx="240" cy="240" r="76" fill="${centerColor}" opacity=".48"/>
       <ellipse id="harmony-focus" cx="240" cy="186" rx="66" ry="38" fill="${notes[0].color}" opacity=".72"/>
     </g>
   </g>`;
@@ -49,11 +49,11 @@ const timelineHarmonyField = (state: SessionState, notes: HarmonicNote[]) => {
   const maximum = Math.max(...notes.map((note) => note.midi));
   const spread = Math.max(1, maximum - minimum);
   const yFor = (note: HarmonicNote) => 315 - ((note.midi - minimum) / spread) * 175;
-  return `<g id="harmony-field" class="harmony-field timeline-harmony" aria-hidden="true" opacity=".34">
+  return `<g id="harmony-field" class="harmony-field timeline-harmony" aria-hidden="true" opacity=".42">
     <g filter="url(#harmony-blur)">${notes
       .map((note, index) => {
         const y = yFor(note);
-        return `<path class="harmony-aurora" data-note-index="${index}" data-note-y="${coordinate(y)}" d="M50 ${coordinate(y)} C146 ${coordinate(y - 22)} 338 ${coordinate(y + 22)} 434 ${coordinate(y)}" fill="none" stroke="${note.color}" stroke-width="24" stroke-linecap="round" opacity=".42"/>`;
+        return `<path class="harmony-aurora" data-note-index="${index}" data-note-y="${coordinate(y)}" d="M50 ${coordinate(y)} C146 ${coordinate(y - 22)} 338 ${coordinate(y + 22)} 434 ${coordinate(y)}" fill="none" stroke="${note.color}" stroke-width="28" stroke-linecap="round" opacity=".5"/>`;
       })
       .join('')}</g>
     <circle id="harmony-focus" cx="50" cy="${coordinate(yFor(notes[0]))}" r="20" fill="${notes[0].color}" opacity=".8" filter="url(#harmony-blur)"/>
@@ -229,7 +229,7 @@ export function animateVisual(
   const harmonyFocus = container.querySelector<SVGElement>('#harmony-focus');
   if (harmonyField && focus) {
     const timeline = harmonyField.classList.contains('timeline-harmony');
-    harmonyField.setAttribute('opacity', coordinate(0.24 + energy * 0.52));
+    harmonyField.setAttribute('opacity', coordinate(0.32 + energy * 0.52));
     if (timeline) {
       const aurora = harmonyField.querySelector<SVGPathElement>(
         `.harmony-aurora[data-note-index="${focus.noteIndex}"]`,

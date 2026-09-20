@@ -8,7 +8,15 @@ import {
   subdivisionEvents,
 } from '../../src/domain/rhythm';
 import { midiToHz, voicing } from '../../src/domain/harmony';
-import { defaultSession, isSession, MAX_LAYERS, newLayer } from '../../src/domain/session';
+import {
+  commonStepCount,
+  defaultSession,
+  isSession,
+  MAX_LAYERS,
+  newLayer,
+  progressionFor,
+  progressionStepAt,
+} from '../../src/domain/session';
 import { LAYER_COLORS } from '../../src/theme/palette';
 import { upgradeSession } from '../../src/persistence/storage';
 import { TransportClock } from '../../src/transport/clock';
@@ -93,6 +101,32 @@ describe('harmony', () => {
     expect(voicing(48, 'major', 'triad')).toEqual([48, 52, 55]);
     expect(voicing(50, 'phrygian', 'fifth')).toEqual([50, 57, 62]);
   });
+  it('keeps sparse harmonic changes anchored to starting steps', () => {
+    const session = defaultSession();
+    session.drone.progression = [
+      { startStep: 3, root: 7, chord: 'minor' },
+      { startStep: 0, root: 0, chord: 'root' },
+    ];
+
+    expect(commonStepCount(session)).toBe(6);
+    expect(progressionFor(session)).toEqual([
+      { startStep: 0, root: 0, chord: 'root' },
+      { startStep: 3, root: 7, chord: 'minor' },
+    ]);
+    expect(progressionStepAt(session, 0.1)).toEqual({
+      startStep: 0,
+      root: 0,
+      chord: 'root',
+    });
+    expect(progressionStepAt(session, 0.6)).toEqual({
+      startStep: 3,
+      root: 7,
+      chord: 'minor',
+    });
+    expect(voicing(60 + progressionStepAt(session, 0.6).root, 'dorian', 'minor')).toEqual([
+      67, 70, 74,
+    ]);
+  });
 });
 describe('session validation', () => {
   it('accepts default and serialized states', () => {
@@ -144,6 +178,24 @@ describe('session validation', () => {
     expect(upgraded?.layers.map((layer) => layer.color)).toEqual(LAYER_COLORS.slice(0, 4));
     expect(isSession(upgraded)).toBe(true);
     expect(upgraded?.layers.map((layer) => layer.enabled)).toEqual([true, true, false, false]);
+  });
+  it('upgrades a legacy v1 session without click sound settings', () => {
+    const legacy = JSON.parse(JSON.stringify(defaultSession())) as Record<string, unknown>;
+    delete legacy.clickSound;
+
+    const upgraded = upgradeSession(legacy);
+
+    expect(upgraded?.clickSound).toEqual({ sound: 'soft', pitch: 0, variation: 18 });
+    expect(isSession(upgraded)).toBe(true);
+  });
+  it('adds a default harmonic progression to a legacy session', () => {
+    const legacy = JSON.parse(JSON.stringify(defaultSession())) as Record<string, unknown>;
+    delete (legacy.drone as Record<string, unknown>).progression;
+
+    const upgraded = upgradeSession(legacy);
+
+    expect(upgraded?.drone.progression).toEqual([{ startStep: 0, root: 2, chord: 'fifth' }]);
+    expect(isSession(upgraded)).toBe(true);
   });
 });
 describe('transport', () => {

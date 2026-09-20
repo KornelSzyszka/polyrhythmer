@@ -584,6 +584,41 @@ summary::-webkit-details-marker {
   width: 70px;
   padding: 9px;
 }
+.click-settings-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: var(--space-lg);
+  padding: var(--space-md) 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  text-align: left;
+  font-size: 11px;
+}
+.click-settings-button strong {
+  margin-left: var(--space-md);
+  margin-right: var(--space-md);
+  color: var(--muted);
+  font:
+    10px ui-monospace,
+    monospace;
+}
+.click-sound-sliders {
+  display: grid;
+  gap: var(--space-sm);
+}
+.click-dialog-field {
+  display: grid;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.click-dialog-field select {
+  width: 100%;
+}
 .drone-title {
   display: flex;
   align-items: center;

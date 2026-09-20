@@ -36,6 +36,11 @@ const sessionFixture = (overrides: Partial<SessionState> = {}): SessionState => 
   bpm: 90,
   cycleBeats: 4,
   subdivision: 0,
+  clickSound: {
+    sound: 'soft',
+    pitch: 0,
+    variation: 18,
+  },
   layers: [
     layer('three', 3),
     layer('two', 2, { sound: 'sine' }),

@@ -1,4 +1,4 @@
-import type { RhythmLayer } from '../domain/session';
+import type { ClickSoundState, RhythmLayer } from '../domain/session';
 interface Voice {
   oscillator: OscillatorNode;
   gain: GainNode;
@@ -40,11 +40,17 @@ export class ClickVoices {
     oscillator.start(time);
     oscillator.stop(time + 0.08);
   }
-  playReference(time: number, accent: boolean) {
+  playReference(time: number, beat: number, accent: boolean, settings: ClickSoundState) {
     const oscillator = this.context.createOscillator();
     const gain = this.context.createGain();
-    const frequency = accent ? 520 : 380;
-    oscillator.type = 'sine';
+    const baseFrequency = { soft: 420, wood: 560, glass: 880 }[settings.sound];
+    const step = (beat % 3) - 1;
+    const frequency =
+      baseFrequency *
+      2 ** (settings.pitch / 12) *
+      2 ** ((step * settings.variation) / 1200) *
+      (accent ? 1.32 : 1);
+    oscillator.type = settings.sound === 'wood' ? 'triangle' : 'sine';
     oscillator.frequency.setValueAtTime(frequency, time);
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(accent ? 0.12 : 0.055, time + 0.001);

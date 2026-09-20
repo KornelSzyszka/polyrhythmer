@@ -133,9 +133,15 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
 
   const instrumentBox = await page.locator('.instrument').boundingBox();
   const rhythmBox = await page.locator('.rhythm-panel').boundingBox();
+  const resonaraBox = await page.locator('.resonara-panel').boundingBox();
+  const progressionBox = await page.locator('.progression-panel').boundingBox();
   expect(instrumentBox).not.toBeNull();
   expect(rhythmBox).not.toBeNull();
+  expect(resonaraBox).not.toBeNull();
+  expect(progressionBox).not.toBeNull();
   expect.soft(Math.abs(instrumentBox!.height - rhythmBox!.height)).toBeLessThanOrEqual(1);
+  expect(resonaraBox!.x).toBeLessThan(rhythmBox!.x);
+  expect(progressionBox!.y).toBeGreaterThan(instrumentBox!.y + instrumentBox!.height);
   expect(
     await page
       .locator('.instrument')
@@ -249,6 +255,30 @@ test('note colours and timbres persist while harmony reacts in every visual view
   await page.screenshot({ path: 'test-results/harmony-mobile-390.png', fullPage: true });
   await page.setViewportSize({ width: 320, height: 720 });
   await page.screenshot({ path: 'test-results/harmony-mobile-320.png', fullPage: true });
+});
+
+test('Resonara exposes a sparse progression panel with starting steps', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.resonara-panel')).toBeVisible();
+  await page.locator('#mode').selectOption('pentatonic');
+  await expect(page.locator('.progression-entry')).toHaveCount(1);
+  await page.locator('#add-progression').click();
+  const progressionDialog = page.locator('#progression-dialog');
+  await expect(progressionDialog).toBeVisible();
+  await expect(progressionDialog.locator('#progression-dialog-step')).toHaveValue('1');
+  await expect(progressionDialog.locator('#progression-dialog-chord option')).toHaveCount(3);
+  await progressionDialog.locator('#progression-dialog-root').selectOption('7');
+  await progressionDialog.locator('#progression-dialog-chord').selectOption('fifth');
+  await progressionDialog.getByRole('button', { name: 'Ustaw akord', exact: true }).click();
+  await expect(page.locator('.scale-description')).toContainText('Pentatoniczna');
+  await expect(page.locator('.progression-entry')).toHaveCount(2);
+  await expect(page.locator('.progression-entry').nth(1)).toContainText('G');
+  await page.reload();
+  await expect(page.locator('#mode')).toHaveValue('pentatonic');
+  await page.locator('.progression-entry').nth(1).locator('.progression-step').click();
+  await expect(page.locator('#progression-dialog-step')).toHaveValue('1');
+  await expect(page.locator('#progression-dialog-root')).toHaveValue('7');
+  await expect(page.locator('#progression-dialog-chord')).toHaveValue('fifth');
 });
 
 test('visual motion switches between one pointer and smooth layer runners in every view', async ({

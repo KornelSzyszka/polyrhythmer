@@ -404,3 +404,220 @@ footer > span:last-child {
     max-height: 100%;
   }
 }
+
+/* Synesterra desktop composition: Polyrhythmer | visual core | Resonara. */
+@media (min-width: 1181px) {
+  main {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.78fr) minmax(430px, 1.55fr) minmax(285px, 0.9fr);
+    grid-template-areas:
+      'left center right'
+      'progression progression progression'
+      'details details details'
+      'message message message';
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  .workspace {
+    display: contents;
+  }
+  .rhythm-panel {
+    grid-area: right;
+  }
+  .instrument {
+    grid-area: center;
+    position: static;
+  }
+  .resonara-panel {
+    grid-area: left;
+    display: block;
+    block-size: var(--workspace-panel-block-size);
+    overflow: auto;
+    padding: var(--space-lg) var(--space-md);
+  }
+  .resonara-panel .drone-intro {
+    border-right: 0;
+    border-bottom: 1px solid #384030;
+    padding-bottom: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  .resonara-panel .drone-selects,
+  .resonara-panel .drone-sliders {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .resonara-panel .drone-sliders {
+    margin-top: var(--space-md);
+  }
+  .progression-panel {
+    grid-area: progression;
+  }
+  .event-details {
+    grid-area: details;
+  }
+  #message {
+    grid-area: message;
+  }
+  .progression-display {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 741px) {
+  .resonara-panel {
+    margin-top: 20px;
+  }
+}
+
+.progression-display {
+  border-block: 1px solid #333a32;
+  padding: var(--space-sm) 0 var(--space-md);
+  display: flex;
+  gap: var(--space-md);
+  align-items: baseline;
+  overflow: hidden;
+}
+.progression-display span,
+.progression-heading span {
+  color: #8f9a86;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  white-space: nowrap;
+}
+.progression-display strong {
+  color: #e4b46a;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.progression-panel {
+  padding: var(--space-md) var(--space-lg);
+}
+.progression-panel .progression-heading {
+  align-items: center;
+}
+.progression-panel .progression-heading small {
+  display: block;
+  margin-top: var(--space-xs);
+  text-align: left;
+}
+.progression-panel .progression-entries {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-sm);
+}
+.scale-description {
+  color: #a0a89e;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: var(--space-md) 0 0;
+}
+.scale-description strong {
+  color: #e4b46a;
+}
+.harmony-progression {
+  border-top: 1px solid #333a32;
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+}
+.progression-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+.progression-heading small {
+  color: #8f9a86;
+  font-size: 10px;
+  text-align: right;
+}
+.progression-entries {
+  display: grid;
+  gap: var(--space-xs);
+}
+.progression-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-xs);
+  align-items: center;
+}
+.progression-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: var(--space-sm);
+  align-items: center;
+  width: 100%;
+  margin: var(--space-xs) 0;
+  padding: var(--space-sm) var(--space-xs);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.progression-entry .progression-step {
+  margin: 0;
+}
+.progression-step:hover,
+.progression-step:focus-visible {
+  border-color: var(--border);
+  background: var(--surface);
+}
+.progression-step > span {
+  color: #8f9a86;
+  font-size: 9px;
+}
+.progression-step strong {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+}
+.progression-step-edit {
+  color: var(--muted);
+  font-size: 9px;
+  opacity: 0.7;
+}
+.progression-delete {
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.progression-delete:hover,
+.progression-delete:focus-visible {
+  border-color: var(--border);
+  color: var(--text);
+}
+.progression-empty {
+  margin: var(--space-sm) 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.progression-dialog-field {
+  display: grid;
+  gap: var(--space-xs);
+  margin: var(--space-lg) 0;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.progression-dialog-field select {
+  min-width: 0;
+  padding: var(--space-sm) var(--space-xs);
+  color: var(--text);
+  font-size: 12px;
+  letter-spacing: normal;
+}
+@media (max-width: 740px) {
+  .progression-display strong {
+    max-width: 70%;
+  }
+  .progression-step {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+  }
+}
