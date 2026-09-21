@@ -10,7 +10,7 @@ for (const file of files.sort()) hash.update(await readFile(file));
 const assets = files.map(f => './' + f.slice(5));
 const version = hash.digest('hex').slice(0,16);
 await writeFile('dist/sw.js', `
-const CACHE = 'polyrhythmer-${version}';
+const CACHE = 'synesterra-${version}';
 const ASSETS = ${JSON.stringify(['./', ...assets])};
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

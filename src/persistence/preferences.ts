@@ -2,7 +2,8 @@ import { PREFERENCE_LANGUAGES, type Language } from '../i18n';
 import { BUILT_IN_PALETTES, type Palette, type PaletteColors } from '../theme/palette';
 import { NOTE_PALETTE_COLORS } from '../theme/note-palette';
 
-export const PREFERENCES_STORAGE_KEY = 'polyrhythmer.preferences.v1';
+export const PREFERENCES_STORAGE_KEY = 'synesterra.preferences.v1';
+export const LEGACY_PREFERENCES_STORAGE_KEY = 'polyrhythmer.preferences.v1';
 
 export type { Palette, PaletteColors } from '../theme/palette';
 export { PREFERENCE_LANGUAGES } from '../i18n';
@@ -87,7 +88,8 @@ export const isPreferences = (value: unknown): value is PreferencesState =>
 
 export function loadPreferences(): { preferences: PreferencesState; warning: string } {
   try {
-    const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+    const current = localStorage.getItem(PREFERENCES_STORAGE_KEY);
+    const raw = current ?? localStorage.getItem(LEGACY_PREFERENCES_STORAGE_KEY);
     if (!raw) return { preferences: defaultPreferences(), warning: '' };
     const value: unknown = JSON.parse(raw);
     const parsed: unknown = object(value)
@@ -100,7 +102,16 @@ export function loadPreferences(): { preferences: PreferencesState; warning: str
           visualMotion: 'visualMotion' in value ? value.visualMotion : 'pointer',
         }
       : value;
-    if (isPreferences(parsed)) return { preferences: parsed, warning: '' };
+    if (isPreferences(parsed)) {
+      if (!current) {
+        try {
+          localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(parsed));
+        } catch {
+          // The valid legacy preferences remain usable even when migration cannot be persisted.
+        }
+      }
+      return { preferences: parsed, warning: '' };
+    }
     throw new Error('Invalid preferences');
   } catch {
     return {

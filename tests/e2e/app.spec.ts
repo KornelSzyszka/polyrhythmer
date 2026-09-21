@@ -2,9 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
-    if (!localStorage.getItem('polyrhythmer.preferences.v1'))
+    if (
+      !localStorage.getItem('synesterra.preferences.v1') &&
+      !localStorage.getItem('polyrhythmer.preferences.v1')
+    )
       localStorage.setItem(
-        'polyrhythmer.preferences.v1',
+        'synesterra.preferences.v1',
         JSON.stringify({
           version: 1,
           language: 'pl',
@@ -353,7 +356,8 @@ test('support subdivision updates its visual dots without changing layer beats',
 });
 
 test('legacy appearance preferences default safely to the pointer', async ({ page }) => {
-  await page.addInitScript(() =>
+  await page.addInitScript(() => {
+    localStorage.removeItem('synesterra.preferences.v1');
     localStorage.setItem(
       'polyrhythmer.preferences.v1',
       JSON.stringify({
@@ -362,13 +366,39 @@ test('legacy appearance preferences default safely to the pointer', async ({ pag
         activePaletteId: 'forest',
         palettes: [],
       }),
-    ),
-  );
+    );
+  });
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Wskazówka', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
+});
+
+test('legacy product storage keys migrate without losing data', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: '5:4', exact: true }).click();
+  await page.evaluate(() => {
+    localStorage.setItem('polyrhythmer.session.v1', localStorage.getItem('synesterra.session.v1')!);
+    localStorage.setItem(
+      'polyrhythmer.preferences.v1',
+      localStorage.getItem('synesterra.preferences.v1')!,
+    );
+    localStorage.removeItem('synesterra.session.v1');
+    localStorage.removeItem('synesterra.preferences.v1');
+  });
+
+  await page.reload();
+
+  expect(
+    await page.evaluate(() => ({
+      session: localStorage.getItem('synesterra.session.v1'),
+      preferences: localStorage.getItem('synesterra.preferences.v1'),
+    })),
+  ).toEqual({
+    session: expect.any(String),
+    preferences: expect.any(String),
+  });
 });
 
 test('appearance palettes persist and do not interrupt transport', async ({ page }) => {
@@ -441,7 +471,7 @@ test('palette names ask before overwriting an existing custom palette', async ({
 });
 
 test('corrupt storage recovers and unavailable storage does not crash', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('polyrhythmer.session.v1', '{broken'));
+  await page.addInitScript(() => localStorage.setItem('synesterra.session.v1', '{broken'));
   await page.goto('/');
   await expect(page.locator('#message')).toContainText('Przywrócono');
   await expect(page.locator('#bpm')).toHaveValue('90');

@@ -1,34 +1,49 @@
-# Polyrhythmer
+# Synesterra
 
-A local polyrhythmic metronome with SVG visualization, a tonal drone, and offline support. Vanilla TypeScript + Vite; no backend, accounts, analytics, or runtime dependencies.
+Synesterra is a browser-based rhythm and harmony instrument. It combines the **Polyrhythmer** rhythm workspace, the **Resonara** drone and harmonic progression workspace, synchronized SVG visualization, and offline PWA support.
 
-## Running locally
+The project is implemented in vanilla TypeScript and Vite. It has no backend, accounts, analytics, or runtime dependencies.
 
-Requirements: Node.js 22.12 or newer (verified with 24.16).
+## Run locally
+
+Requirements: Node.js 22.12 or newer (verified with Node.js 24.16).
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-For a production build, including the service worker:
+Open the URL printed by Vite. Development mode does not register the service worker.
+
+To exercise the production build and offline shell:
 
 ```powershell
 npm run build
 npm run preview
 ```
 
-Open the URL printed by Vite. Wait for **Ready offline** before disconnecting from the network. The service worker is disabled in development mode.
+Wait until the offline status is ready before disconnecting from the network.
 
-## Features
+## Product model
 
-- Presets 3:2, 4:3, 5:4, 7:4, and 7:5; four fixed layer slots, with 1–16 beats per layer and an enable switch for each slot. The first two slots are enabled by default.
-- Tempo from 20–300 BPM, tap tempo, and a 1–16 quarter-note cycle. At 120 BPM with a four-quarter-note cycle, one full rotation takes two seconds. Layer counts divide this shared duration.
-- Start/Pause preserves the current position. Stop returns to the beginning. Space controls transport when focus is on the page background.
-- The compact layer panel exposes layer enable, colour, and beats per cycle. Four fixed layer cards fit without changing the panel size; disabling a layer preserves its settings.
-- The drone follows the transport. Choose the root, octave, harmony, mode, filter, and stereo width. The mode determines the third in Triad harmony.
-- The circle, timeline, and polygons show the same cycle. Polygon vertex count matches each layer's beat count. The Motion switch chooses one shared indicator or a separate smooth dot for every layer; the expanded table shows exact beat steps.
-- Configuration is saved automatically on the device. Playback never resumes automatically after a refresh.
+Synesterra has three named layers:
+
+- **Synesterra** is the complete instrument and repository.
+- **Polyrhythmer** is the rhythm workspace: four fixed layer slots, presets, support subdivision, click synthesis, tempo, and transport.
+- **Resonara** is the harmony workspace: scale context, tonal drone, sparse common-step progression, voicing, filter, and stereo width.
+
+The current web/PWA includes:
+
+- four persistent rhythm-layer slots with enable switches, 1–16 beats per cycle, individual colours, and presets;
+- 20–300 BPM, tap tempo, a 1–16 quarter-note common cycle, and optional reference subdivisions;
+- configurable click character, pitch variation, master gain, drone harmony, and per-note colour/timbre;
+- circle, timeline, and polygon views driven by the same transport clock;
+- sparse harmonic changes anchored to common steps;
+- English, Polish, German, Italian, Spanish, and Brazilian Portuguese UI preferences;
+- built-in and custom visual themes, including twelve note colours;
+- local persistence and an installable offline shell.
+
+Playback never starts automatically after a refresh.
 
 ## Architecture
 
@@ -37,42 +52,47 @@ UI → serializable SessionState → AudioEngine
                                   ├─ TransportClock → Scheduler → ClickVoices
                                   └─ DroneEngine
 AudioContext.currentTime → TransportClock → SVG visualization
-SessionState ↔ localStorage (version and range validation)
+SessionState ↔ validated localStorage
+PreferencesState ↔ validated localStorage
+Vite build → build-sw.mjs → versioned offline cache
 ```
 
-- `src/domain`: pure gcd/lcm, event, and harmony calculations plus configuration validation.
-- `src/transport/clock.ts`: cycle position and audio-time mapping; tempo changes preserve phase.
-- `src/audio`: one lazily created AudioContext; the scheduler wakes every 25 ms and plans 100 ms ahead. Timers are not the audio clock. Events missed during throttling are skipped to avoid a burst of overdue clicks.
-- Rhythm changes cancel old voices, apply a short fade, and schedule new ones from the preserved position with a 15 ms margin. Editing may cause a short pause. The drone uses three fixed oscillators and an LFO, interpolates parameters, and disconnects nodes after release.
-- `src/visual`: SVG updated through requestAnimationFrame, only as a consumer of clock position.
-- `src/ui`: controls, validation, and coordination; it does not create audio nodes.
-- `src/persistence`: corrupt or unknown storage falls back to 3:2. Storage errors do not stop the application.
-- `scripts/build-sw.mjs`: precaches all build resources and derives the cache identifier from their contents. Updates require user action after transport stops. Old caches are retained for open tabs and can be cleared through site data settings.
+- `src/domain` owns serializable music state, validation, rhythm, harmony, and colour calculations.
+- `src/transport/clock.ts` owns cycle position and audio-time mapping; tempo changes preserve phase.
+- `src/audio` owns the `AudioContext`, look-ahead scheduling, click voices, and drone voices.
+- `src/visual` renders SVG and observes transport position without controlling it.
+- `src/persistence` validates stored sessions and appearance preferences before use.
+- `src/theme` and `src/i18n` own presentation contracts without entering the audio path.
+- `src/ui/app.ts` is the composition root for controls, persistence, audio, and rendering.
+- `scripts/build-sw.mjs` precaches the final Vite output under a content-derived cache version.
 
-The LCM grid is used for descriptions and the table; the scheduler uses a sparse list of actual beats, so patterns such as 11:13:15:16 do not create tens of thousands of empty events.
+The LCM grid describes relationships and labels. Audio scheduling uses a sparse list of actual events, so coprime patterns do not allocate every empty grid step.
+
+## Local data compatibility
+
+Current data is stored under `synesterra.session.v1` and `synesterra.preferences.v1`. Valid data created before the repository rename is still read from `polyrhythmer.session.v1` and `polyrhythmer.preferences.v1`, then copied to the current keys. Legacy keys are intentionally retained as a rollback-safe fallback.
 
 ## Verification
 
 ```powershell
-npm test
+npm run check
 npx playwright install chromium
-npm run build
-npm run test:e2e
+npm run check:e2e
 npm audit
 ```
 
-Unit tests cover the rhythm grid, scheduler ordering and window boundaries, tuning, validation, and phase continuity. Playwright tests the production build: transport, drone, oscillator cleanup, limits, invalid storage, responsive layout, refresh, and offline startup.
+`npm run check` covers TypeScript, ESLint, Prettier, and Vitest. `npm run check:e2e` builds the production PWA and runs Playwright against `127.0.0.1:4173`.
 
-E2E screenshots are written to `test-results/desktop.png` and `test-results/mobile.png`.
+Browser automation covers transport, persistence and legacy migration, offline startup, responsive layout, themes, harmonic views, and audio-node cleanup. It does **not** prove sound quality, Bluetooth behavior, background playback, lock-screen behavior, or long-session reliability on physical Android/iOS devices.
 
-## Publishing and installation
+## Publishing
 
-Publish `dist/` on a static HTTPS host such as GitHub Pages or Cloudflare Pages. The build uses relative paths and can run from a subdirectory. Serve `sw.js` without a long HTTP cache; `assets/*` may use immutable caching. No SPA fallback rule is required beyond the precached document.
+Publish `dist/` to a static HTTPS host. The build uses relative paths and can run from a subdirectory. Serve `sw.js` without a long HTTP cache; fingerprinted assets may be immutable. No SPA fallback beyond the precached document is required.
 
-Chrome offers an install button when browser criteria are met. On iOS, use Safari → Share → Add to Home Screen. Audio requires a Start gesture. The first load must happen online, and the system may remove the cache.
+Chrome can offer installation when its PWA criteria are met. On iOS, use Safari → Share → Add to Home Screen. Audio requires an explicit Start gesture, and the first load must happen online.
 
-## Scope and limitations
+## Scope
 
-The functional MVP scope is implemented, along with tap tempo, modes, pan, filter, stereo width, a timeline, and four fixed layer slots. Optional reverb and the v2/v3 roadmap are not implemented: custom preset libraries, JSON import/export, swing, patterns, polymeter, MIDI, and recording.
+The repository contains the shared web/PWA client and is the intended home for future Capacitor adapters. A future backend, if justified by accounts, synchronization, subscriptions, or telemetry, remains a separate concern and must never sit on the real-time audio path.
 
-**Physical-device acceptance remains required:** Android Chrome and iOS Safari, speaker/headphone listening, Bluetooth, screen lock, and 30 minutes of continuous operation. Automated Chromium does not replace this part of MVP-12. The operating system may suspend background audio; the application reports this state and lets the user resume playback.
+Planned mobile/product work still includes portable session import/export, a local library, performance workflows, controlled evolution, physical-device audio validation, and store delivery. Automated Chromium is not a substitute for those release gates.

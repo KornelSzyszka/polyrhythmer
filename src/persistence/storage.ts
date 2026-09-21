@@ -6,7 +6,8 @@ import {
 } from '../domain/session';
 import { defaultNotePalette } from '../domain/note-colors';
 import { LAYER_COLORS } from '../theme/palette';
-export const STORAGE_KEY = 'polyrhythmer.session.v1';
+export const STORAGE_KEY = 'synesterra.session.v1';
+export const LEGACY_STORAGE_KEY = 'polyrhythmer.session.v1';
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 export function upgradeSession(value: unknown): SessionState | null {
@@ -65,10 +66,20 @@ export function upgradeSession(value: unknown): SessionState | null {
 }
 export function loadSession(): { state: SessionState; warning: string } {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const current = localStorage.getItem(STORAGE_KEY);
+    const raw = current ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return { state: defaultSession(), warning: '' };
     const state = upgradeSession(JSON.parse(raw));
-    if (state) return { state, warning: '' };
+    if (state) {
+      if (!current) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          // The valid legacy session remains usable even when migration cannot be persisted.
+        }
+      }
+      return { state, warning: '' };
+    }
     throw new Error('Invalid session');
   } catch {
     return {

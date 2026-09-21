@@ -170,7 +170,7 @@ h3 {
 .language-select select {
   width: 100%;
   height: 36px;
-  padding: 0 var(--space-lg) 0 42px;
+  padding: 0 var(--space-lg) 0 var(--space-xl);
   border-radius: 6px;
   font-size: 12px;
   letter-spacing: normal;
