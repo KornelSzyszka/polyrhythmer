@@ -1,3 +1,5 @@
+import { NOTE_PALETTE_COLORS } from './note-palette';
+
 export interface PaletteColors {
   background: string;
   surface: string;
@@ -11,6 +13,7 @@ export interface Palette {
   id: string;
   name: string;
   colors: PaletteColors;
+  noteColors: readonly string[];
   builtIn: boolean;
 }
 
@@ -51,6 +54,7 @@ export const BUILT_IN_PALETTES: Palette[] = [
       border: '#333a32',
       accent: '#e4b46a',
     },
+    noteColors: NOTE_PALETTE_COLORS,
   },
   {
     id: 'slate',
@@ -64,6 +68,20 @@ export const BUILT_IN_PALETTES: Palette[] = [
       border: '#374151',
       accent: '#67e8f9',
     },
+    noteColors: [
+      '#ffd166',
+      '#ef8354',
+      '#6c9a8b',
+      '#496a81',
+      '#f4a261',
+      '#8ab17d',
+      '#e76f51',
+      '#b8b8ff',
+      '#cdb4db',
+      '#ffafcc',
+      '#90dbf4',
+      '#b9fbc0',
+    ],
   },
   {
     id: 'dawn',
@@ -77,6 +95,20 @@ export const BUILT_IN_PALETTES: Palette[] = [
       border: '#d9d0c0',
       accent: '#aa5b2d',
     },
+    noteColors: [
+      '#b65f3a',
+      '#d97745',
+      '#4f7c82',
+      '#355c62',
+      '#8c4a2f',
+      '#3a9271',
+      '#4e8b63',
+      '#8b6f61',
+      '#6d5a4d',
+      '#a9473d',
+      '#7d3841',
+      '#5e4775',
+    ],
   },
   {
     id: 'high-contrast',
@@ -90,6 +122,7 @@ export const BUILT_IN_PALETTES: Palette[] = [
       border: '#ffffff',
       accent: '#ffff00',
     },
+    noteColors: Array(12).fill('#ffffff'),
   },
 ];
 

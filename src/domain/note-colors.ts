@@ -1,3 +1,5 @@
+import { NOTE_PALETTE_COLORS } from '../theme/note-palette';
+
 export const NOTE_TIMBRES = ['sine', 'triangle', 'sawtooth', 'square'] as const;
 export type NoteTimbre = (typeof NOTE_TIMBRES)[number];
 
@@ -10,21 +12,6 @@ export interface NotePalette {
   referenceOctave: number;
   notes: NoteStyle[];
 }
-
-const DEFAULT_NOTE_COLORS = [
-  '#e9bd3d',
-  '#d3753a',
-  '#74939d',
-  '#475053',
-  '#5d350f',
-  '#60c2a0',
-  '#296942',
-  '#4a3c35',
-  '#35271b',
-  '#8c2223',
-  '#3b0e16',
-  '#221643',
-] as const;
 
 interface Oklab {
   l: number;
@@ -71,7 +58,7 @@ const oklabToHex = ({ l, a, b }: Oklab): string => {
 
 export const defaultNotePalette = (): NotePalette => ({
   referenceOctave: 3,
-  notes: DEFAULT_NOTE_COLORS.map((color) => ({ color, timbre: 'triangle' })),
+  notes: NOTE_PALETTE_COLORS.map((color) => ({ color, timbre: 'triangle' })),
 });
 
 export const pitchClassForMidi = (midi: number) => ((midi % 12) + 12) % 12;

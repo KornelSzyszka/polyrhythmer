@@ -96,6 +96,7 @@ const paletteColorNames: Record<keyof PaletteColors, string> = {
   border: 'Obramowanie',
   accent: 'Akcent',
 };
+const noteColorLabels = notes;
 const selected = (a: unknown, b: unknown) => (a === b ? 'selected' : '');
 const escapeHtml = (value: string) =>
   value.replace(
@@ -125,6 +126,7 @@ export class App {
   private busy = false;
   private status = 'Gotowy do gry';
   private editingPaletteId: string | null = null;
+  private appearanceTab: 'choose' | 'editor' = 'choose';
   private editingProgressionIndex: number | null = null;
   private addingProgression = false;
   private notePaletteOpen = false;
@@ -180,7 +182,7 @@ export class App {
     const paletteRows = palettes
       .map(
         (palette) =>
-          `<div class="palette-row"><button type="button" class="palette-select" data-palette-action="select" data-palette-id="${palette.id}" aria-pressed="${this.preferences.activePaletteId === palette.id}" aria-label="Wybierz paletę ${escapeHtml(palette.name)}"><span class="palette-name">${escapeHtml(palette.name)}</span><span class="palette-swatches" aria-label="Kolory palety">${paletteColorKeys.map((key) => `<i title="${paletteColorNames[key]}" style="--swatch:${palette.colors[key]}"></i>`).join('')}</span></button>${palette.builtIn ? '<small>Wbudowana</small>' : `<button type="button" data-palette-action="edit" data-palette-id="${palette.id}">Edytuj</button><button type="button" data-palette-action="delete" data-palette-id="${palette.id}">Usuń</button>`}</div>`,
+          `<div class="palette-row"><button type="button" class="palette-select" data-palette-action="select" data-palette-id="${palette.id}" aria-pressed="${this.preferences.activePaletteId === palette.id}" aria-label="Wybierz paletę ${escapeHtml(palette.name)}"><span class="palette-name">${escapeHtml(palette.name)}</span><span class="palette-swatches" aria-label="Kolory palety">${paletteColorKeys.map((key) => `<i title="${paletteColorNames[key]}" style="--swatch:${palette.colors[key]}"></i>`).join('')}</span></button><button type="button" data-palette-action="edit" data-palette-id="${palette.id}">Edytuj</button>${palette.builtIn ? '<small>Wbudowana</small>' : `<button type="button" data-palette-action="delete" data-palette-id="${palette.id}">Usuń</button>`}</div>`,
       )
       .join('');
     const active = document.activeElement?.id;
@@ -256,7 +258,7 @@ export class App {
         )
         .join('')}</div></details></dialog>
       <dialog id="progression-dialog"><button id="close-progression" class="close-dialog" aria-label="Zamknij ustawienia akordu">×</button><p class="eyebrow">PROGRESJA</p><h2 id="progression-dialog-title">Dodaj akord</h2><p>Wybierz starting step, ton i akord dostępny w aktualnej skali.</p><label class="progression-dialog-field" for="progression-dialog-step">STARTING STEP<select id="progression-dialog-step">${Array.from({ length: steps }, (_, step) => `<option value="${step}">${step}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-root">TON AKORDU<select id="progression-dialog-root">${notes.map((note, noteIndex) => `<option value="${noteIndex}">${note}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-chord">AKORD<select id="progression-dialog-chord">${scaleDefinition.chords.map((chord) => `<option value="${chord}">${chordNames[chord]}</option>`).join('')}</select></label><div class="appearance-actions"><button id="save-progression" type="button">Ustaw akord</button></div></dialog>
-      <dialog id="appearance-dialog"><button id="close-appearance" class="close-dialog" aria-label="Zamknij ustawienia wyglądu">×</button><p class="eyebrow">USTAWIENIA WYGLĄDU</p><h2>Palety i presety</h2><p class="appearance-copy">Tutaj ustalisz wszystkie palety Synesterry: wygląd strony, kolory warstw i dźwięków oraz zapisane presety.</p><div class="palette-list">${paletteRows}</div><hr><h3 id="palette-form-title">Nowa paleta</h3><label class="appearance-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><div class="palette-colors">${paletteColorKeys.map((key) => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><div class="appearance-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></dialog>
+      <dialog id="appearance-dialog"><button id="close-appearance" class="close-dialog" aria-label="Zamknij ustawienia wyglądu">×</button><p class="eyebrow">USTAWIENIA WYGLĄDU</p><h2>Palety i presety</h2><p class="appearance-copy">Tutaj ustalisz wszystkie palety Synesterry: wygląd strony, kolory warstw i dźwięków oraz zapisane presety.</p><div class="appearance-tabs" role="tablist" aria-label="Ustawienia theme"><button id="choose-theme-tab" type="button" role="tab" aria-selected="${this.appearanceTab === 'choose'}" data-appearance-tab="choose">Choose theme</button><button id="theme-editor-tab" type="button" role="tab" aria-selected="${this.appearanceTab === 'editor'}" data-appearance-tab="editor">Theme editor</button></div>${this.appearanceTab === 'choose' ? `<section class="appearance-tab-panel" role="tabpanel" aria-labelledby="choose-theme-tab"><h3>Choose theme</h3><div class="palette-list">${paletteRows}</div><button id="new-palette" type="button" class="quiet">Nowy theme</button></section>` : `<section class="appearance-tab-panel" role="tabpanel" aria-labelledby="theme-editor-tab"><h3 id="palette-form-title">Nowy theme</h3><label class="appearance-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><h4>Kolory wyglądu</h4><div class="palette-colors">${paletteColorKeys.map((key) => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><h4>Kolory dźwięków</h4><div class="note-palette-colors">${noteColorLabels.map((note, index) => `<label>${note}<input id="palette-note-${index}" type="color" value="${paletteById(defaultPreferences(), 'forest')!.noteColors[index]}" aria-label="Kolor dźwięku ${note}"></label>`).join('')}</div><div class="appearance-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></section>`}</dialog>
     </div>`;
     this.updateTransport();
     translateDom(this.root, this.preferences.language);
@@ -295,7 +297,11 @@ export class App {
     if (!savePreferences(this.preferences))
       this.message('Zapis ustawień wyglądu jest niedostępny. Zmiana działa do zamknięcia strony.');
   }
-  private paletteFormValues(): { name: string; colors: PaletteColors } | null {
+  private paletteFormValues(): {
+    name: string;
+    colors: PaletteColors;
+    noteColors: string[];
+  } | null {
     const name = (this.root.querySelector('#palette-name') as HTMLInputElement).value.trim();
     if (!name) {
       this.message('Nadaj palecie nazwę.');
@@ -307,10 +313,25 @@ export class App {
         (this.root.querySelector(`#palette-${key}`) as HTMLInputElement).value,
       ]),
     ) as unknown as PaletteColors;
-    return { name, colors };
+    return {
+      name,
+      colors,
+      noteColors: noteColorLabels.map(
+        (_, index) => (this.root.querySelector(`#palette-note-${index}`) as HTMLInputElement).value,
+      ),
+    };
   }
   private openAppearanceSettings() {
     (this.root.querySelector('#appearance-dialog') as HTMLDialogElement).showModal();
+  }
+  private switchAppearanceTab(tab: 'choose' | 'editor') {
+    this.appearanceTab = tab;
+    this.render();
+    this.openAppearanceSettings();
+    if (tab === 'editor') {
+      const activePalette = paletteById(this.preferences, this.preferences.activePaletteId);
+      if (activePalette) this.loadPaletteIntoEditor(activePalette);
+    }
   }
   private openProgressionStep(index: number) {
     const step = progressionFor(this.state)[index];
@@ -396,23 +417,35 @@ export class App {
   }
   private selectPalette(palette: Palette) {
     this.preferences.activePaletteId = palette.id;
+    this.state.notePalette.notes = this.state.notePalette.notes.map((note, index) => ({
+      ...note,
+      color: palette.noteColors[index],
+    }));
     this.saveAppearancePreferences();
-    this.render();
+    this.commit();
     this.openAppearanceSettings();
-    this.loadPaletteIntoEditor(palette);
   }
   private loadPaletteIntoEditor(palette: Palette) {
     this.editingPaletteId = palette.builtIn ? null : palette.id;
     this.root.querySelector('#palette-form-title')!.textContent = palette.builtIn
-      ? `Kolory: ${palette.name}`
+      ? `Nowy theme z: ${palette.name}`
       : `Edytuj: ${palette.name}`;
-    (this.root.querySelector('#palette-name') as HTMLInputElement).value = palette.name;
+    (this.root.querySelector('#palette-name') as HTMLInputElement).value = palette.builtIn
+      ? `${palette.name} custom`
+      : palette.name;
     paletteColorKeys.forEach((key) => {
       (this.root.querySelector(`#palette-${key}`) as HTMLInputElement).value = palette.colors[key];
     });
-    (this.root.querySelector('#cancel-palette-edit') as HTMLButtonElement).hidden = palette.builtIn;
+    palette.noteColors.forEach((color, index) => {
+      const input = this.root.querySelector(`#palette-note-${index}`) as HTMLInputElement | null;
+      if (input) input.value = color;
+    });
+    (this.root.querySelector('#cancel-palette-edit') as HTMLButtonElement).hidden = false;
   }
   private editPalette(palette: Palette) {
+    this.appearanceTab = 'editor';
+    this.render();
+    this.openAppearanceSettings();
     this.loadPaletteIntoEditor(palette);
   }
   private savePalette() {
@@ -444,8 +477,14 @@ export class App {
       this.preferences.palettes.push({ id, ...values, builtIn: false });
       this.preferences.activePaletteId = id;
     }
+    this.state.notePalette.notes = this.state.notePalette.notes.map((note, index) => ({
+      ...note,
+      color: values.noteColors[index],
+    }));
     this.editingPaletteId = null;
+    this.appearanceTab = 'choose';
     this.saveAppearancePreferences();
+    this.commit();
     this.refreshAppearanceSettings();
   }
   private deletePalette(id: string) {
@@ -501,9 +540,19 @@ export class App {
     if (button.dataset.paletteAction) {
       const palette = paletteById(this.preferences, button.dataset.paletteId!);
       if (button.dataset.paletteAction === 'select' && palette) this.selectPalette(palette);
-      if (button.dataset.paletteAction === 'edit' && palette && !palette.builtIn)
-        this.editPalette(palette);
+      if (button.dataset.paletteAction === 'edit' && palette) this.editPalette(palette);
       if (button.dataset.paletteAction === 'delete') this.deletePalette(button.dataset.paletteId!);
+      return;
+    }
+    if (button.dataset.appearanceTab) {
+      this.switchAppearanceTab(button.dataset.appearanceTab as 'choose' | 'editor');
+      return;
+    }
+    if (button.id === 'new-palette') {
+      this.editingPaletteId = null;
+      this.appearanceTab = 'editor';
+      this.render();
+      this.openAppearanceSettings();
       return;
     }
     if (button.dataset.preset) {

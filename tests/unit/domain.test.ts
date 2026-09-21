@@ -21,6 +21,7 @@ import { LAYER_COLORS } from '../../src/theme/palette';
 import { upgradeSession } from '../../src/persistence/storage';
 import { TransportClock } from '../../src/transport/clock';
 import { defaultPreferences, isPreferences } from '../../src/persistence/preferences';
+import { NOTE_PALETTE_COLORS } from '../../src/theme/note-palette';
 
 describe('rhythm model', () => {
   it.each([
@@ -230,6 +231,7 @@ describe('palette preferences', () => {
       id: 'custom-night',
       name: 'Noc',
       builtIn: false,
+      noteColors: NOTE_PALETTE_COLORS,
       colors: {
         background: '#000000',
         surface: '#111111',
@@ -248,6 +250,7 @@ describe('palette preferences', () => {
       id: 'custom-night',
       name: 'Noc',
       builtIn: false,
+      noteColors: NOTE_PALETTE_COLORS,
       colors: {
         background: '#bad',
         surface: '#111111',

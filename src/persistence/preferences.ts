@@ -1,5 +1,6 @@
 import { PREFERENCE_LANGUAGES, type Language } from '../i18n';
 import { BUILT_IN_PALETTES, type Palette, type PaletteColors } from '../theme/palette';
+import { NOTE_PALETTE_COLORS } from '../theme/note-palette';
 
 export const PREFERENCES_STORAGE_KEY = 'polyrhythmer.preferences.v1';
 
@@ -50,7 +51,18 @@ const isCustomPalette = (value: unknown): value is Palette =>
   value.name.trim().length > 0 &&
   value.name.length <= 32 &&
   value.builtIn === false &&
-  isColors(value.colors);
+  isColors(value.colors) &&
+  Array.isArray(value.noteColors) &&
+  value.noteColors.length === 12 &&
+  value.noteColors.every((color) => typeof color === 'string' && COLOR.test(color));
+
+const migratePalette = (value: Record<string, unknown>): Record<string, unknown> => ({
+  ...value,
+  noteColors:
+    Array.isArray(value.noteColors) && value.noteColors.length === 12
+      ? value.noteColors
+      : NOTE_PALETTE_COLORS,
+});
 
 export const isPreferences = (value: unknown): value is PreferencesState =>
   object(value) &&
@@ -81,6 +93,9 @@ export function loadPreferences(): { preferences: PreferencesState; warning: str
     const parsed: unknown = object(value)
       ? {
           ...value,
+          palettes: Array.isArray(value.palettes)
+            ? value.palettes.map((palette) => (object(palette) ? migratePalette(palette) : palette))
+            : value.palettes,
           language: 'language' in value ? value.language : 'en',
           visualMotion: 'visualMotion' in value ? value.visualMotion : 'pointer',
         }

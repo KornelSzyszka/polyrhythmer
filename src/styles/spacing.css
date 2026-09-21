@@ -207,6 +207,34 @@ dialog p + p {
 .appearance-copy {
   margin: var(--space-md) 0 var(--space-lg);
 }
+.appearance-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  margin: var(--space-lg) 0;
+}
+.appearance-tabs button {
+  padding: var(--space-sm) var(--space-md);
+}
+.appearance-tab-panel h3,
+.appearance-tab-panel h4 {
+  margin: var(--space-md) 0;
+}
+.note-palette-colors {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+}
+.note-palette-colors label {
+  display: grid;
+  gap: var(--space-xs);
+  color: var(--muted);
+  font-size: 10px;
+}
+.note-palette-colors input {
+  width: 100%;
+  padding: var(--space-3xs);
+}
 .appearance-field {
   margin: var(--space-md) 0;
 }
@@ -350,6 +378,9 @@ footer {
 }
 
 @media (max-width: 740px) {
+  .note-palette-colors {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .shell {
     padding: 0 var(--space-lg);
   }

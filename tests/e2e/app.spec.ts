@@ -376,8 +376,10 @@ test('appearance palettes persist and do not interrupt transport', async ({ page
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Ustawienia wyglądu' })).toBeVisible();
   await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
+  await page.getByRole('tab', { name: 'Theme editor' }).click();
   await page.locator('#palette-name').fill('Moja paleta');
   await page.locator('#palette-accent').fill('#ff00aa');
+  await page.locator('#palette-note-0').fill('#123456');
   await page.getByRole('button', { name: 'Zapisz paletę' }).click();
   await expect(page.getByRole('button', { name: 'Pauza', exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-palette', /^custom-/);
@@ -386,8 +388,15 @@ test('appearance palettes persist and do not interrupt transport', async ({ page
   const customRow = page.locator('.palette-row').filter({ hasText: 'Moja paleta' });
   await expect(customRow).toBeVisible();
   await customRow.getByRole('button', { name: 'Wybierz paletę Moja paleta' }).click();
+  await page.getByRole('tab', { name: 'Theme editor' }).click();
   await expect(page.locator('#palette-accent')).toHaveValue('#ff00aa');
-  await customRow.getByRole('button', { name: 'Edytuj' }).click();
+  await expect(page.locator('#palette-note-0')).toHaveValue('#123456');
+  await page.getByRole('tab', { name: 'Choose theme' }).click();
+  await page
+    .locator('.palette-row')
+    .filter({ hasText: 'Moja paleta' })
+    .getByRole('button', { name: 'Edytuj' })
+    .click();
   await page.locator('#palette-name').fill('Poprawiona paleta');
   await page.getByRole('button', { name: 'Zapisz paletę' }).click();
   await expect(page.locator('.palette-row').filter({ hasText: 'Poprawiona paleta' })).toBeVisible();
@@ -415,9 +424,11 @@ test('high-contrast palette updates CSS and SVG without interrupting playback', 
 test('palette names ask before overwriting an existing custom palette', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
+  await page.getByRole('tab', { name: 'Theme editor' }).click();
   await page.locator('#palette-name').fill('Duplikat');
   await page.locator('#palette-accent').fill('#112233');
   await page.getByRole('button', { name: 'Zapisz paletę' }).click();
+  await page.getByRole('tab', { name: 'Theme editor' }).click();
   await page.locator('#palette-name').fill('Duplikat');
   await page.locator('#palette-accent').fill('#332211');
   page.once('dialog', (dialog) => {
