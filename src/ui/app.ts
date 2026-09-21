@@ -224,7 +224,7 @@ export class App {
           })
             .map(([v, n]) => `<option value="${v}" ${selected(s.drone.chord, v)}>${n}</option>`)
             .join('')}</select></label></div>
-          <p class="scale-description"><strong>${scaleLabel}</strong> — ${scaleDescription}</p><div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div>
+          <p class="scale-description"><strong>${scaleLabel}</strong> — ${scaleDescription}</p><details class="drone-advanced"><summary>Zaawansowane brzmienie <span>Poziom, jasność i stereo</span></summary><div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div></details>
           <details class="note-palette" ${this.notePaletteOpen ? 'open' : ''}><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
             .map(
               (style, index) =>

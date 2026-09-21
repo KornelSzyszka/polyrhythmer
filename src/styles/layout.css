@@ -432,7 +432,7 @@ footer > span:last-child {
     grid-area: left;
     display: block;
     block-size: var(--workspace-panel-block-size);
-    overflow: auto;
+    overflow: visible;
     padding: var(--space-lg) var(--space-md);
   }
   .resonara-panel .drone-intro {

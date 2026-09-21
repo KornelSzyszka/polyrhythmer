@@ -147,6 +147,12 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
       .locator('.instrument')
       .evaluate((element) => element.scrollHeight <= element.clientHeight),
   ).toBe(true);
+  expect(
+    await page
+      .locator('.resonara-panel')
+      .evaluate((element) => element.scrollHeight <= element.clientHeight),
+  ).toBe(true);
+  await expect(page.locator('.drone-advanced')).not.toHaveAttribute('open', '');
 
   const spacingViolations = await page.evaluate(() => {
     const rootStyle = getComputedStyle(document.documentElement);
