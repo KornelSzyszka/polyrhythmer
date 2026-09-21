@@ -71,3 +71,24 @@ test('English uses a Union Jack and a restrained keyboard focus', async ({ page 
   expect(focusStyle).toEqual({ outlineOffset: '1px', outlineWidth: '1px' });
   await page.screenshot({ path: 'test-results/language-en.png' });
 });
+
+test('appearance dialog keeps its labels in the selected language', async ({ page }) => {
+  await page.goto('/');
+  const language = page.locator('#language');
+
+  await language.selectOption('pl');
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
+  await expect(page.getByRole('heading', { name: 'Palety i presety' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Wybierz motyw' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Edytor motywu' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Nowa paleta' })).toBeVisible();
+  await expect(page.locator('#close-appearance')).toHaveCSS('display', 'grid');
+
+  await page.locator('#close-appearance').click();
+  await language.selectOption('en');
+  await page.getByRole('button', { name: 'Appearance settings' }).click();
+  await expect(page.getByRole('heading', { name: 'Palettes and presets' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Choose theme' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Theme editor' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'New palette' })).toBeVisible();
+});
