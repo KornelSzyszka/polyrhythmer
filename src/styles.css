@@ -308,33 +308,6 @@ h3 {
   stroke: #f5ecdb;
   stroke-width: 3;
 }
-.visual-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 18px;
-  font:
-    10px ui-monospace,
-    monospace;
-  color: var(--muted);
-}
-.visual-legend span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.visual-legend i {
-  height: 6px;
-  width: 6px;
-  background: var(--layer);
-  border-radius: 50%;
-}
-.visual-legend .cycle-length {
-  border-left: 1px solid #48513f;
-  padding-left: 16px;
-  color: #b4bdac;
-}
 .tempo > label {
   font-size: 9px;
   letter-spacing: 1.5px;

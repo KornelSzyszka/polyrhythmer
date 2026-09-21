@@ -37,10 +37,6 @@
   height: 100%;
   display: block;
 }
-.visual-legend {
-  min-height: 35px;
-  margin: 0 -8px 19px;
-}
 .transport {
   display: flex;
   align-items: center;
@@ -262,9 +258,6 @@ footer > span:last-child {
   }
   h1 {
     font-size: 32px;
-  }
-  .visual-legend {
-    gap: 10px;
   }
   .presets button {
     padding: 7px;

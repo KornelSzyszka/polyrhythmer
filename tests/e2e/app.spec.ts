@@ -243,7 +243,7 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
 test('layer colors and enabled state persist across fixed slots', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Kolor warstwy 1').fill('#ff00aa');
-  await expect(page.locator('.visual-legend span').first()).toHaveAttribute('style', /#ff00aa/);
+  await expect(page.locator('.visual-legend')).toHaveCount(0);
   await expect(page.locator('#visual svg')).toContainText('3:2');
 
   await page.reload();

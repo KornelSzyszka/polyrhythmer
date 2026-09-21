@@ -61,15 +61,6 @@ input[type='range'] {
 .visual-motion .segmented button {
   padding: var(--space-xs) var(--space-sm);
 }
-.visual-legend {
-  gap: var(--space-lg);
-}
-.visual-legend span {
-  gap: var(--space-sm);
-}
-.visual-legend .cycle-length {
-  padding-left: var(--space-lg);
-}
 .tempo > div {
   gap: var(--space-sm);
   margin-top: var(--space-sm);
@@ -330,9 +321,6 @@ dialog hr {
 #visual {
   margin: var(--space-sm) auto var(--space-3xs);
 }
-.visual-legend {
-  margin: 0 calc(-1 * var(--space-sm)) var(--space-lg);
-}
 .transport {
   gap: var(--space-md);
   padding: var(--space-lg) 0;
@@ -453,9 +441,6 @@ footer {
   }
   .tempo > div {
     gap: var(--space-2xs);
-  }
-  .visual-legend {
-    gap: var(--space-md);
   }
   .presets button {
     padding: var(--space-sm);
