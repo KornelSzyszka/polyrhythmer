@@ -22,7 +22,8 @@ test('complete practice session persists and works offline', async ({ page, cont
   await page.goto('/');
   await expect(page.locator('.intro')).toHaveCount(0);
   await expect(page.locator('.brand')).toContainText('synesterra');
-  await expect(page.locator('.brand')).toContainText('polyrhythmer');
+  await expect(page.locator('.brand')).not.toContainText('polyrhythmer');
+  await expect(page.locator('.version')).toHaveCount(0);
   await expect(page.locator('#offline-status, #install, #developer-mode')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Ustawienia wyglądu' })).toBeVisible();
   await expect(page.locator('.section-tag')).toContainText('6 wspólnych kroków');
