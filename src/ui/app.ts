@@ -34,13 +34,13 @@ const timbreNames: Record<NoteTimbre, string> = {
   sawtooth: 'Piła',
   square: 'Prostokąt',
 };
-const languageCodes: Record<Language, string> = {
-  pl: 'PL',
-  en: 'GB',
-  de: 'DE',
-  it: 'IT',
-  es: 'ES',
-  'pt-BR': 'BR',
+const languageFlagClasses: Record<Language, string> = {
+  pl: 'pl',
+  en: 'gb',
+  de: 'de',
+  it: 'it',
+  es: 'es',
+  'pt-BR': 'br',
 };
 const languageNames: Record<Language, string> = {
   pl: 'Polski',
@@ -191,7 +191,7 @@ export class App {
     const scaleLabel = translateText(scaleDefinition.label, this.preferences.language);
     const scaleDescription = translateText(scaleDefinition.description, this.preferences.language);
     this.root.innerHTML = `<div class="shell">
-      <header class="topbar"><a class="brand" href="./" aria-label="Synesterra — strona główna"><span class="brand-mark">◉</span><span class="brand-copy"><strong>synesterra</strong></span></a><div class="top-actions"><label class="language-select">Język<select id="language" aria-label="Język">${PREFERENCE_LANGUAGES.map((language) => `<option value="${language}" ${selected(language, this.preferences.language)}>${languageCodes[language]} · ${translateText(languageNames[language], this.preferences.language)}</option>`).join('')}</select></label><button id="appearance-settings" class="quiet" aria-label="Ustawienia wyglądu">Ustawienia wyglądu</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
+      <header class="topbar"><a class="brand" href="./" aria-label="Synesterra — strona główna"><span class="brand-mark">◉</span><span class="brand-copy"><strong>synesterra</strong></span></a><div class="top-actions"><label class="language-select">Język<span class="language-control"><span class="language-flag language-flag-${languageFlagClasses[this.preferences.language]}" aria-hidden="true"></span><select id="language" aria-label="Język">${PREFERENCE_LANGUAGES.map((language) => `<option value="${language}" ${selected(language, this.preferences.language)}>${translateText(languageNames[language], this.preferences.language)}</option>`).join('')}</select></span></label><button id="appearance-settings" class="quiet" aria-label="Ustawienia wyglądu">Ustawienia wyglądu</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
       <main>
         <div class="workspace">
           <section class="instrument panel" aria-label="Wizualizacja i transport"><div class="panel-top"><span class="section-tag"><i></i> ${steps} wspólnych kroków</span><div class="segmented" aria-label="Widok"><button id="circle" aria-pressed="${s.visualMode === 'circle'}">Okrąg</button><button id="timeline" aria-pressed="${s.visualMode === 'timeline'}">Oś czasu</button><button id="polygons" aria-pressed="${s.visualMode === 'polygons'}">Wielokąty</button></div></div>

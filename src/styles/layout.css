@@ -151,7 +151,7 @@ footer > span:last-child {
   }
   .language-select {
     min-width: 0;
-    flex: 1 1 160px;
+    flex: 1 1 140px;
   }
   .brand {
     font-size: 21px;

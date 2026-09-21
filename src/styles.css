@@ -162,7 +162,7 @@ h3 {
 .language-select {
   display: grid;
   gap: var(--space-2xs);
-  min-width: 220px;
+  min-width: 190px;
   color: var(--text);
   font-size: 11px;
   line-height: 1;
@@ -170,10 +170,58 @@ h3 {
 .language-select select {
   width: 100%;
   height: 36px;
-  padding: 0 var(--space-lg) 0 var(--space-md);
+  padding: 0 var(--space-lg) 0 42px;
   border-radius: 6px;
   font-size: 12px;
   letter-spacing: normal;
+}
+.language-select select:focus-visible {
+  outline-offset: 2px;
+}
+.language-control {
+  position: relative;
+  display: block;
+}
+.language-flag {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 12px;
+  transform: translateY(-50%);
+  border: 1px solid color-mix(in srgb, var(--text) 35%, transparent);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.language-flag-pl {
+  background: linear-gradient(to bottom, #fff 0 50%, #dc143c 50%);
+}
+.language-flag-gb {
+  background:
+    linear-gradient(90deg, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(0deg, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(90deg, transparent 47%, #c8102e 47% 53%, transparent 53%),
+    linear-gradient(0deg, transparent 47%, #c8102e 47% 53%, transparent 53%), #012169;
+}
+.language-flag-de {
+  background: linear-gradient(to bottom, #111 0 33%, #d00 33% 66%, #ffce00 66%);
+}
+.language-flag-it {
+  background: linear-gradient(to right, #009246 0 33%, #fff 33% 66%, #ce2b37 66%);
+}
+.language-flag-es {
+  background: linear-gradient(to bottom, #aa151b 0 25%, #f1bf00 25% 75%, #aa151b 75%);
+}
+.language-flag-br {
+  background: #009c3b;
+}
+.language-flag-br::before {
+  content: '';
+  position: absolute;
+  inset: 2px 4px;
+  background: #ffdf00;
+  transform: rotate(45deg);
 }
 .top-actions > .quiet {
   height: 36px;
