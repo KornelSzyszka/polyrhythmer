@@ -12,6 +12,8 @@ import { createVisualTheme, type VisualTheme } from '../theme/palette';
 
 const coordinate = (value: number) => String(Number(value.toFixed(3)));
 const degrees = (radians: number) => (radians * 180) / Math.PI;
+const radialLayerRadius = (index: number, layerCount: number, outerRadius: number, gap: number) =>
+  outerRadius - (layerCount - 1 - index) * gap;
 
 const harmonyDefs = (
   notes: HarmonicNote[],
@@ -169,7 +171,7 @@ export function renderVisual(
       ${radialHarmonyField(state, harmony)}
       ${layers
         .map((layer, index) => {
-          const radius = 188 - index * 34;
+          const radius = radialLayerRadius(index, layers.length, 188, 34);
           const opacity = layer.muted || (solo && !layer.solo) ? 0.2 : 1;
           const shape =
             layer.beatsPerCycle >= 3
@@ -202,7 +204,7 @@ export function renderVisual(
     }).join('')}
     ${layers
       .map((l, i) => {
-        const r = 185 - i * 32;
+        const r = radialLayerRadius(i, layers.length, 185, 32);
         return `<g opacity="${l.muted || (solo && !l.solo) ? 0.2 : 1}"><circle cx="240" cy="240" r="${r}" fill="none" stroke="${l.color}" stroke-opacity=".27" stroke-width="1"/>
       ${beatMarkers(l.beatsPerCycle, r, l.color, i + 1, theme)}${options.visualMotion === 'runners' ? `<circle class="visual-runner circle-runner" data-radius="${r}" cx="240" cy="${240 - r}" r="5" fill="${l.color}"/>` : ''}</g>`;
       })

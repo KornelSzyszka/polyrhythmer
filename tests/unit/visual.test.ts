@@ -30,6 +30,32 @@ describe('polygon visualization', () => {
     expect(svg).toContain('class="polygon-low-count"');
   });
 
+  it('places layer one inside layer two in radial views without reordering the timeline', () => {
+    const state = defaultSession();
+
+    state.visualMode = 'circle';
+    const circle = renderVisual(state);
+    expect(circle).toContain(
+      `<circle data-beat="0" cx="240" cy="87" r="9" fill="${state.layers[0].color}"/><text x="240" y="90.5" text-anchor="middle"`,
+    );
+    expect(circle).toContain(
+      `<circle data-beat="0" cx="240" cy="55" r="9" fill="${state.layers[1].color}"/><text x="240" y="58.5" text-anchor="middle"`,
+    );
+
+    state.visualMode = 'polygons';
+    const polygons = renderVisual(state);
+    expect(polygons).toContain(
+      `<circle data-beat="0" cx="240" cy="86" r="9" fill="${state.layers[0].color}"/><text x="240" y="89.5" text-anchor="middle"`,
+    );
+    expect(polygons).toContain(
+      `<circle data-beat="0" cx="240" cy="52" r="9" fill="${state.layers[1].color}"/><text x="240" y="55.5" text-anchor="middle"`,
+    );
+
+    state.visualMode = 'timeline';
+    const timeline = renderVisual(state);
+    expect(timeline.indexOf('x="26" y="155"')).toBeLessThan(timeline.indexOf('x="26" y="210"'));
+  });
+
   it.each(['circle', 'timeline', 'polygons'] as const)(
     'replaces the pointer with one runner per layer in %s view',
     (visualMode) => {
