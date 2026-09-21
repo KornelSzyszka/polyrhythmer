@@ -826,39 +826,27 @@ button[aria-pressed='true'] {
   background: var(--surface);
   border-color: var(--border);
 }
-.drone-advanced {
-  margin-top: var(--space-md);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.drone-advanced summary {
+.drone-settings-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-md);
-  min-height: 44px;
-  color: var(--text);
-  cursor: pointer;
-  list-style: none;
-}
-.drone-advanced summary::-webkit-details-marker {
-  display: none;
-}
-.drone-advanced summary::after {
-  content: '+';
-  color: var(--accent);
-  font-size: 18px;
-}
-.drone-advanced[open] summary::after {
-  content: '−';
-}
-.drone-advanced summary span {
-  margin-left: auto;
+  width: 100%;
+  margin-top: var(--space-lg);
+  padding: var(--space-md) 0;
+  border: 0;
+  border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 10px;
+  text-align: left;
+  font-size: 11px;
 }
-.drone-advanced .drone-sliders {
-  margin: 0 0 var(--space-md);
+.drone-settings-button span:last-child {
+  color: var(--accent);
+  font-size: 16px;
+}
+.drone-dialog-sliders {
+  display: grid;
+  gap: var(--space-lg);
+  margin: var(--space-xl) 0;
 }
 .developer-copy {
   margin: 12px 0 18px;

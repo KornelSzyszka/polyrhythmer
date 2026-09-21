@@ -24,5 +24,7 @@ describe('language preferences', () => {
     expect(translateText('SESJA / 001', 'en')).toBe('SESSION / 001');
     expect(translateText('Tryb lokalny', 'en')).toBe('Local mode');
     expect(translateText('CYKL 01', 'en')).toBe('CYCLE 01');
+    expect(translateText('Zaawansowane ustawienia', 'en')).toBe('Advanced settings');
+    expect(translateText('Zamknij zaawansowane ustawienia', 'en')).toBe('Close advanced settings');
   });
 });

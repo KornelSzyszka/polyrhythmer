@@ -152,7 +152,6 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
       .locator('.resonara-panel')
       .evaluate((element) => element.scrollHeight <= element.clientHeight),
   ).toBe(true);
-  await expect(page.locator('.drone-advanced')).not.toHaveAttribute('open', '');
 
   const spacingViolations = await page.evaluate(() => {
     const rootStyle = getComputedStyle(document.documentElement);
@@ -228,11 +227,14 @@ test('note colours and timbres persist while harmony reacts in every visual view
   await page.getByRole('switch', { name: 'Dron tonalny' }).click();
   await page.locator('#root').selectOption('0');
   await page.locator('#chord').selectOption('triad');
+  await page.locator('#drone-settings').click();
+  await expect(page.locator('#drone-dialog')).toBeVisible();
   await page.locator('.note-palette summary').click();
   await expect(page.locator('.note-palette')).toHaveAttribute('open', '');
   await page.getByLabel('Kolor nuty C', { exact: true }).fill('#22aaff');
   await expect(page.locator('.note-palette')).toHaveAttribute('open', '');
   await page.getByLabel('Barwa nuty C', { exact: true }).selectOption('sawtooth');
+  await page.locator('#close-drone').click();
 
   await expect(page.locator('#visual .radial-harmony')).toHaveCount(1);
   await expect(page.locator('#visual [id^="harmony-note-"]')).toHaveCount(3);
@@ -254,6 +256,7 @@ test('note colours and timbres persist while harmony reacts in every visual view
   await page.screenshot({ path: 'test-results/harmony-polygons.png', fullPage: true });
   await page.locator('#stop').click();
   await page.reload();
+  await page.locator('#drone-settings').click();
   await page.locator('.note-palette summary').click();
   await expect(page.getByLabel('Kolor nuty C', { exact: true })).toHaveValue('#22aaff');
   await expect(page.getByLabel('Barwa nuty C', { exact: true })).toHaveValue('sawtooth');

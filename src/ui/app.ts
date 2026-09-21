@@ -112,6 +112,7 @@ export class App {
   private editingProgressionIndex: number | null = null;
   private addingProgression = false;
   private notePaletteOpen = false;
+  private droneDialogOpen = false;
   constructor(root: HTMLElement) {
     const loaded = loadSession(),
       loadedPreferences = loadPreferences();
@@ -170,12 +171,6 @@ export class App {
     const enabledLayers = s.layers.filter((l) => l.enabled);
     const steps = lcm(enabledLayers.map((l) => l.beatsPerCycle));
     const progression = progressionFor(s);
-    const progressionLabel = progression
-      .map(
-        (step) =>
-          `${step.startStep}: ${notes[step.root]} ${translateText(chordNames[step.chord], this.preferences.language)}`,
-      )
-      .join(' · ');
     const scaleDefinition = SCALE_DEFINITIONS[s.drone.mode];
     const scaleLabel = translateText(scaleDefinition.label, this.preferences.language);
     const scaleDescription = translateText(scaleDefinition.description, this.preferences.language);
@@ -184,7 +179,6 @@ export class App {
       <main>
         <div class="workspace">
           <section class="instrument panel" aria-label="Wizualizacja i transport"><div class="panel-top"><span class="section-tag"><i></i> ${steps} wspólnych kroków</span><div class="segmented" aria-label="Widok"><button id="circle" aria-pressed="${s.visualMode === 'circle'}">Okrąg</button><button id="timeline" aria-pressed="${s.visualMode === 'timeline'}">Oś czasu</button><button id="polygons" aria-pressed="${s.visualMode === 'polygons'}">Wielokąty</button></div></div>
-            <div class="progression-display" aria-label="Aktualna progresja akordów"><span>PROGRESJA</span><strong>${escapeHtml(progressionLabel)}</strong></div>
             <div id="visual">${renderVisual(s, { visualMotion: this.preferences.visualMotion, theme: createVisualTheme(paletteById(this.preferences, this.preferences.activePaletteId)?.colors ?? paletteById(defaultPreferences(), 'forest')!.colors) })}</div>
             <div class="visual-motion"><span>RUCH</span><div class="segmented" aria-label="Ruch wizualizacji"><button id="motion-pointer" aria-pressed="${this.preferences.visualMotion === 'pointer'}">Wskazówka</button><button id="motion-runners" aria-pressed="${this.preferences.visualMotion === 'runners'}">Kropki</button></div></div>
             <div class="visual-legend">${enabledLayers.map((l, i) => `<span style="--layer:${layerColor(l)}"><i></i>${i + 1} / ${l.beatsPerCycle} uderz.</span>`).join('')}<span class="cycle-length">${((60 * s.cycleBeats) / s.bpm).toFixed(2)} s / cykl</span></div>
@@ -224,13 +218,7 @@ export class App {
           })
             .map(([v, n]) => `<option value="${v}" ${selected(s.drone.chord, v)}>${n}</option>`)
             .join('')}</select></label></div>
-          <p class="scale-description"><strong>${scaleLabel}</strong> — ${scaleDescription}</p><details class="drone-advanced"><summary>Zaawansowane brzmienie <span>Poziom, jasność i stereo</span></summary><div class="drone-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div></details>
-          <details class="note-palette" ${this.notePaletteOpen ? 'open' : ''}><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
-            .map(
-              (style, index) =>
-                `<div class="note-style"><strong>${notes[index]}</strong><label><span>Kolor</span><input id="note-color-${index}" data-note-index="${index}" type="color" value="${style.color}" aria-label="Kolor nuty ${notes[index]}"></label><label><span>Barwa</span><select id="note-timbre-${index}" data-note-index="${index}" aria-label="Barwa nuty ${notes[index]}">${NOTE_TIMBRES.map((timbre) => `<option value="${timbre}" ${selected(style.timbre, timbre)}>${timbreNames[timbre]}</option>`).join('')}</select></label></div>`,
-            )
-            .join('')}</div></details></div></section>
+          <p class="scale-description"><strong>${scaleLabel}</strong> — ${scaleDescription}</p><button id="drone-settings" class="drone-settings-button" type="button"><span>Zaawansowane ustawienia</span><span aria-hidden="true">↗</span></button></div></section>
         <section class="progression-panel panel" aria-label="Panel progresji"><div class="progression-heading"><div><p class="eyebrow">PROGRESJA</p><small>Akordy zaczynają się na wybranych stepach.</small></div><button id="add-progression" type="button" class="quiet" data-action="add-progression">Dodaj akord +</button></div><div class="progression-entries">${progression.map((step, index) => `<div class="progression-entry"><button type="button" class="progression-step" data-action="edit-progression" data-index="${index}" aria-label="Edytuj akord od kroku ${step.startStep}"><span>STEP ${String(step.startStep).padStart(2, '0')}</span><strong>${notes[step.root]} · ${translateText(chordNames[step.chord], this.preferences.language)}</strong><span class="progression-step-edit">Edytuj ↗</span></button><button type="button" class="progression-delete" data-action="delete-progression" data-index="${index}" aria-label="Usuń akord od kroku ${step.startStep}">×</button></div>`).join('') || '<p class="progression-empty">Dodaj pierwszy akord do progresji.</p>'}</div></section>
         <details class="event-details"><summary>Jak spotykają się rytmy?</summary><p>Każda warstwa dzieli ten sam cykl na równe odcinki. Krok 0 to wspólny początek.</p><table><caption>Uderzenia na siatce ${steps} kroków</caption><thead><tr><th>Warstwa</th><th>Kroki uderzeń</th></tr></thead><tbody>${enabledLayers
           .map(
@@ -245,6 +233,12 @@ export class App {
       </main><footer><span>Stworzone do uważnego słuchania.</span><div class="master">${range('master', 'Głośność główna', s.masterGain, 0, MAX_MASTER_GAIN)}</div><span>BEZ KONT. BEZ POŚPIECHU.</span></footer>
       <dialog id="help-dialog"><button id="close-help" class="close-dialog" aria-label="Zamknij pomoc">×</button><p class="eyebrow">KRÓTKI PRZEWODNIK</p><h2>Wiele rytmów, jeden cykl.</h2><p>Wybierz proporcję, np. 3:2, i naciśnij Start. Pierwsza warstwa zagra trzy, a druga dwa równo rozmieszczone uderzenia w tym samym czasie.</p><p>BPM określa tempo ćwierćnut. Długość cyklu mówi, ile ćwierćnut mieści się w pełnym obrocie. Przy 90 BPM i 4 ćwierćnutach cykl trwa 2,67 s.</p><p>Każda karta warstwy pozwala ustawić jej kolor i liczbę uderzeń w cyklu. Pauza zachowuje pozycję, Stop wraca do zera. Spacja działa, gdy fokus nie jest w kontrolce.</p><p>Włącz dron, by ćwiczyć na tle stałego tonu. Tryb zmienia tercję trójdźwięku; pryma i kwinta pozostają te same.</p><p>Ustawienia zapisują się na tym urządzeniu. Gdy zobaczysz „Gotowy offline”, możesz wrócić bez internetu. Do instalacji na iOS wybierz Udostępnij → Do ekranu początkowego. System może zatrzymać dźwięk w tle lub po zablokowaniu ekranu.</p></dialog>
       <dialog id="click-dialog"><button id="close-click" class="close-dialog" aria-label="Zamknij ustawienia kliku">×</button><p class="eyebrow">BRZMIENIE KLIKU</p><h2>Ustawienia kliku</h2><p>Wybierz charakter i delikatne rozstrojenie kolejnych uderzeń.</p><label class="click-dialog-field" for="click-sound">Preset<select id="click-sound">${CLICK_SOUNDS.map((sound) => `<option value="${sound}" ${selected(s.clickSound.sound, sound)}>${clickSoundNames[sound]}</option>`).join('')}</select></label><div class="click-sound-sliders"><div>${range('click-pitch', 'Wysokość', s.clickSound.pitch, -12, 12, 1, ' półtonu')}</div><div>${range('click-variation', 'Różnica między klikami', s.clickSound.variation, 0, 50, 1, ' centów')}</div></div></dialog>
+      <dialog id="drone-dialog"><button id="close-drone" class="close-dialog" aria-label="Zamknij zaawansowane ustawienia">×</button><p class="eyebrow">RESONARA</p><h2>Zaawansowane ustawienia</h2><p>Dopasuj charakter drona i paletę nut bez rozbudowywania głównego panelu.</p><div class="drone-dialog-sliders"><div>${range('drone-gain', 'Poziom drona', s.drone.gain)}</div><div>${range('filter', 'Jasność', s.drone.filterHz, 100, 8000, 50, ' Hz')}</div><div>${range('spread', 'Szerokość stereo', s.drone.spread)}</div></div><details class="note-palette" ${this.notePaletteOpen ? 'open' : ''}><summary>Barwy nut <span>Oktawa bazowa: ${s.notePalette.referenceOctave}</span></summary><div class="note-palette-grid">${s.notePalette.notes
+        .map(
+          (style, index) =>
+            `<div class="note-style"><strong>${notes[index]}</strong><label><span>Kolor</span><input id="note-color-${index}" data-note-index="${index}" type="color" value="${style.color}" aria-label="Kolor nuty ${notes[index]}"></label><label><span>Barwa</span><select id="note-timbre-${index}" data-note-index="${index}" aria-label="Barwa nuty ${notes[index]}">${NOTE_TIMBRES.map((timbre) => `<option value="${timbre}" ${selected(style.timbre, timbre)}>${timbreNames[timbre]}</option>`).join('')}</select></label></div>`,
+        )
+        .join('')}</div></details></dialog>
       <dialog id="progression-dialog"><button id="close-progression" class="close-dialog" aria-label="Zamknij ustawienia akordu">×</button><p class="eyebrow">PROGRESJA</p><h2 id="progression-dialog-title">Dodaj akord</h2><p>Wybierz starting step, ton i akord dostępny w aktualnej skali.</p><label class="progression-dialog-field" for="progression-dialog-step">STARTING STEP<select id="progression-dialog-step">${Array.from({ length: steps }, (_, step) => `<option value="${step}">${step}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-root">TON AKORDU<select id="progression-dialog-root">${notes.map((note, noteIndex) => `<option value="${noteIndex}">${note}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-chord">AKORD<select id="progression-dialog-chord">${scaleDefinition.chords.map((chord) => `<option value="${chord}">${chordNames[chord]}</option>`).join('')}</select></label><div class="developer-actions"><button id="save-progression" type="button">Ustaw akord</button></div></dialog>
       <dialog id="developer-dialog"><button id="close-developer" class="close-dialog" aria-label="Zamknij ustawienia palet">×</button><p class="eyebrow">USTAWIENIA PALET</p><h2>Palety wyglądu</h2><p class="developer-copy">Wybierz paletę, aby jej użyć i załadować kolory do edytora. Palety zapisują się lokalnie.</p><div class="palette-list">${paletteRows}</div><hr><h3 id="palette-form-title">Nowa paleta</h3><label class="developer-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><div class="palette-colors">${paletteColorKeys.map((key) => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><div class="developer-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></dialog>
     </div>`;
@@ -252,6 +246,8 @@ export class App {
     translateDom(this.root, this.preferences.language);
     const nextNotePalette = this.root.querySelector<HTMLDetailsElement>('.note-palette');
     if (nextNotePalette) nextNotePalette.open = this.notePaletteOpen;
+    if (this.droneDialogOpen)
+      (this.root.querySelector('#drone-dialog') as HTMLDialogElement).showModal();
     if (active) document.getElementById(active)?.focus({ preventScroll: true });
     document.dispatchEvent(new Event('app-render'));
   }
@@ -592,6 +588,14 @@ export class App {
       case 'close-click':
         (this.root.querySelector('#click-dialog') as HTMLDialogElement).close();
         break;
+      case 'drone-settings':
+        this.droneDialogOpen = true;
+        (this.root.querySelector('#drone-dialog') as HTMLDialogElement).showModal();
+        break;
+      case 'close-drone':
+        this.droneDialogOpen = false;
+        (this.root.querySelector('#drone-dialog') as HTMLDialogElement).close();
+        break;
       case 'close-progression':
         this.addingProgression = false;
         this.editingProgressionIndex = null;
@@ -622,6 +626,9 @@ export class App {
   }
   private change(event: Event) {
     const input = event.target as HTMLInputElement;
+    if (input.id.startsWith('note-color-') || input.id.startsWith('note-timbre-'))
+      this.notePaletteOpen =
+        (this.root.querySelector('.note-palette') as HTMLDetailsElement | null)?.open ?? false;
     if (input.id === 'language' && PREFERENCE_LANGUAGES.includes(input.value as Language)) {
       this.preferences.language = input.value as Language;
       this.saveAppearancePreferences();

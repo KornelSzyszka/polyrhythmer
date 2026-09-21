@@ -409,13 +409,13 @@ footer > span:last-child {
 @media (min-width: 1181px) {
   main {
     display: grid;
-    grid-template-columns: minmax(250px, 0.78fr) minmax(430px, 1.55fr) minmax(285px, 0.9fr);
+    grid-template-columns: minmax(280px, 0.95fr) minmax(450px, 1.2fr) minmax(280px, 0.95fr);
     grid-template-areas:
       'left center right'
       'progression progression progression'
       'details details details'
       'message message message';
-    gap: var(--space-lg);
+    gap: var(--space-md);
     align-items: start;
   }
   .workspace {
@@ -424,9 +424,32 @@ footer > span:last-child {
   .rhythm-panel {
     grid-area: right;
   }
+  .rhythm-panel .presets {
+    flex-wrap: wrap;
+  }
+  .rhythm-panel .presets > span {
+    flex-basis: 100%;
+    margin-bottom: var(--space-xs);
+  }
+  .rhythm-panel .presets button {
+    flex: 1 1 0;
+  }
+  .rhythm-panel .cycle-setting,
+  .rhythm-panel .cycle-setting label {
+    min-width: 0;
+  }
+  .instrument .play {
+    min-width: 100px;
+  }
+  .instrument .tap {
+    padding-inline: var(--space-xs);
+  }
   .instrument {
     grid-area: center;
     position: static;
+  }
+  .instrument > * {
+    min-width: 0;
   }
   .resonara-panel {
     grid-area: left;
@@ -458,9 +481,6 @@ footer > span:last-child {
   #message {
     grid-area: message;
   }
-  .progression-display {
-    min-width: 0;
-  }
 }
 
 @media (max-width: 1180px) and (min-width: 741px) {
@@ -469,28 +489,11 @@ footer > span:last-child {
   }
 }
 
-.progression-display {
-  border-block: 1px solid #333a32;
-  padding: var(--space-sm) 0 var(--space-md);
-  display: flex;
-  gap: var(--space-md);
-  align-items: baseline;
-  overflow: hidden;
-}
-.progression-display span,
 .progression-heading span {
   color: #8f9a86;
   font-size: 9px;
   letter-spacing: 1.4px;
   white-space: nowrap;
-}
-.progression-display strong {
-  color: #e4b46a;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .progression-panel {
   padding: var(--space-md) var(--space-lg);
@@ -614,9 +617,6 @@ footer > span:last-child {
   letter-spacing: normal;
 }
 @media (max-width: 740px) {
-  .progression-display strong {
-    max-width: 70%;
-  }
   .progression-step {
     grid-template-columns: 24px minmax(0, 1fr) auto;
   }

@@ -125,6 +125,10 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
       'Five notes; simple, spacious and forgiving.',
     'Dron tonalny': 'Tonal drone',
     'Stały ton. Więcej przestrzeni.': 'A sustained tone. More space.',
+    'Zaawansowane ustawienia': 'Advanced settings',
+    'Zamknij zaawansowane ustawienia': 'Close advanced settings',
+    'Dopasuj charakter drona i paletę nut bez rozbudowywania głównego panelu.':
+      'Shape the drone and note palette without expanding the main panel.',
     'TON PODSTAWOWY': 'ROOT NOTE',
     OKTAWA: 'OCTAVE',
     TRYB: 'MODE',
