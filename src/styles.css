@@ -1030,11 +1030,9 @@ dialog::backdrop {
   background: color-mix(in srgb, var(--background) 75%, transparent);
   backdrop-filter: blur(5px);
 }
-:root[data-palette='dawn'] {
-  color-scheme: light;
-}
 :root[data-palette='forest'],
-:root[data-palette='slate'] {
+:root[data-palette='autumn'],
+:root[data-palette='high-contrast'] {
   color-scheme: dark;
 }
 .appearance-actions #save-palette {

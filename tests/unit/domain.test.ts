@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   gcd,
   lcm,
@@ -20,7 +20,12 @@ import {
 import { LAYER_COLORS } from '../../src/theme/palette';
 import { upgradeSession } from '../../src/persistence/storage';
 import { TransportClock } from '../../src/transport/clock';
-import { defaultPreferences, isPreferences } from '../../src/persistence/preferences';
+import {
+  defaultPreferences,
+  isPreferences,
+  loadPreferences,
+  PREFERENCES_STORAGE_KEY,
+} from '../../src/persistence/preferences';
 import { NOTE_PALETTE_COLORS } from '../../src/theme/note-palette';
 
 describe('rhythm model', () => {
@@ -265,5 +270,41 @@ describe('palette preferences', () => {
     valid.activePaletteId = 'missing';
     expect(isPreferences(valid)).toBe(false);
     expect(isPreferences({ ...defaultPreferences(), visualMotion: 'unknown' })).toBe(false);
+  });
+  it('migrates the former autumn custom palette and removed built-ins', () => {
+    const storage = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+      removeItem: (key: string) => storage.delete(key),
+    });
+    localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({
+        ...defaultPreferences(),
+        activePaletteId: 'custom-autumn',
+        palettes: [
+          {
+            id: 'custom-autumn',
+            name: 'Jesień',
+            builtIn: false,
+            noteColors: NOTE_PALETTE_COLORS,
+            colors: {
+              background: '#15120f',
+              surface: '#211b16',
+              text: '#f1e8dc',
+              muted: '#b7a99b',
+              border: '#49392c',
+              accent: '#c37a24',
+            },
+          },
+        ],
+      }),
+    );
+    const loaded = loadPreferences();
+    expect(loaded.preferences.activePaletteId).toBe('autumn');
+    expect(loaded.preferences.palettes).toEqual([]);
+    localStorage.removeItem(PREFERENCES_STORAGE_KEY);
+    vi.unstubAllGlobals();
   });
 });

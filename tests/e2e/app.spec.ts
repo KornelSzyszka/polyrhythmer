@@ -470,13 +470,21 @@ test('appearance palettes persist and do not interrupt transport', async ({ page
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'forest');
 });
 
+test('built-in palette names stay fixed and obsolete palettes are absent', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
+  await expect(page.locator('.palette-name')).toHaveText(['Forest', 'Autumn', 'High Contrast']);
+  await expect(page.locator('.palette-name')).not.toContainText(['Slate', 'Dawn', 'Jesień']);
+  await expect(page.getByRole('button', { name: 'Nowa paleta' })).toBeVisible();
+});
+
 test('high-contrast palette updates CSS and SVG without interrupting playback', async ({
   page,
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
-  await page.getByRole('button', { name: 'Wybierz paletę Wysoki kontrast' }).click();
+  await page.getByRole('button', { name: 'Wybierz paletę High Contrast' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'high-contrast');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(0, 0, 0)');
   await expect(page.locator('#visual #circle-head circle')).toHaveAttribute('fill', '#ffffff');

@@ -163,9 +163,6 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Palety wyglądu': 'Appearance palettes',
     'Wybierz paletę, aby jej użyć i załadować kolory do edytora. Palety zapisują się lokalnie.':
       'Choose a palette to use it and load its colours into the editor. Palettes are saved locally.',
-    Leśna: 'Forest',
-    Łupek: 'Slate',
-    Świt: 'Dawn',
     Tło: 'Background',
     Powierzchnia: 'Surface',
     Tekst: 'Text',

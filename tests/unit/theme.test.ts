@@ -9,12 +9,16 @@ import {
 import { renderVisual } from '../../src/visual/views';
 
 describe('theme tokens', () => {
-  it('provides three ordinary palettes and a high-contrast variant', () => {
+  it('provides fixed-name forest, autumn and high-contrast palettes', () => {
     expect(BUILT_IN_PALETTES.map((palette) => palette.id)).toEqual([
       'forest',
-      'slate',
-      'dawn',
+      'autumn',
       'high-contrast',
+    ]);
+    expect(BUILT_IN_PALETTES.map((palette) => palette.name)).toEqual([
+      'Forest',
+      'Autumn',
+      'High Contrast',
     ]);
     expect(LAYER_COLORS).toHaveLength(12);
     for (const palette of BUILT_IN_PALETTES) {
@@ -28,7 +32,7 @@ describe('theme tokens', () => {
   });
 
   it('passes the active palette roles explicitly into every SVG view', () => {
-    const theme = createVisualTheme(BUILT_IN_PALETTES[3].colors);
+    const theme = createVisualTheme(BUILT_IN_PALETTES[2].colors);
     for (const visualMode of ['circle', 'timeline', 'polygons'] as const) {
       const state = defaultSession();
       state.visualMode = visualMode;

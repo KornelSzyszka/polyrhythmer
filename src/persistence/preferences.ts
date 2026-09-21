@@ -65,6 +65,41 @@ const migratePalette = (value: Record<string, unknown>): Record<string, unknown>
       : NOTE_PALETTE_COLORS,
 });
 
+const isLegacyAutumnPalette = (value: unknown): value is Record<string, unknown> => {
+  if (!object(value)) return false;
+  const name = typeof value.name === 'string' ? value.name.trim().toLocaleLowerCase() : '';
+  return name === 'jesień' || name === 'jesien' || value.id === 'autumn';
+};
+
+const migratePreferences = (value: Record<string, unknown>): Record<string, unknown> => {
+  const palettes = Array.isArray(value.palettes)
+    ? value.palettes
+        .filter((palette) => !isLegacyAutumnPalette(palette))
+        .map((palette) => (object(palette) ? migratePalette(palette) : palette))
+    : value.palettes;
+  const activePaletteId =
+    typeof value.activePaletteId === 'string' ? value.activePaletteId : 'forest';
+  return {
+    ...value,
+    palettes,
+    activePaletteId:
+      activePaletteId === 'slate' || activePaletteId === 'dawn'
+        ? 'forest'
+        : activePaletteId === 'autumn' ||
+            (Array.isArray(value.palettes) &&
+              value.palettes.some(
+                (palette) =>
+                  object(palette) &&
+                  palette.id === activePaletteId &&
+                  isLegacyAutumnPalette(palette),
+              ))
+          ? 'autumn'
+          : activePaletteId,
+    language: 'language' in value ? value.language : 'en',
+    visualMotion: 'visualMotion' in value ? value.visualMotion : 'pointer',
+  };
+};
+
 export const isPreferences = (value: unknown): value is PreferencesState =>
   object(value) &&
   value.version === 1 &&
@@ -92,16 +127,7 @@ export function loadPreferences(): { preferences: PreferencesState; warning: str
     const raw = current ?? localStorage.getItem(LEGACY_PREFERENCES_STORAGE_KEY);
     if (!raw) return { preferences: defaultPreferences(), warning: '' };
     const value: unknown = JSON.parse(raw);
-    const parsed: unknown = object(value)
-      ? {
-          ...value,
-          palettes: Array.isArray(value.palettes)
-            ? value.palettes.map((palette) => (object(palette) ? migratePalette(palette) : palette))
-            : value.palettes,
-          language: 'language' in value ? value.language : 'en',
-          visualMotion: 'visualMotion' in value ? value.visualMotion : 'pointer',
-        }
-      : value;
+    const parsed: unknown = object(value) ? migratePreferences(value) : value;
     if (isPreferences(parsed)) {
       if (!current) {
         try {
@@ -116,7 +142,7 @@ export function loadPreferences(): { preferences: PreferencesState; warning: str
   } catch {
     return {
       preferences: defaultPreferences(),
-      warning: 'Nie udało się odczytać palet. Przywrócono paletę Leśna.',
+      warning: 'Nie udało się odczytać palet. Przywrócono paletę Forest.',
     };
   }
 }
