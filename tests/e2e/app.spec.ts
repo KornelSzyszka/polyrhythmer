@@ -85,6 +85,12 @@ test('layer limits, validation, help and mobile layout', async ({ page }) => {
     true,
   );
   await page.screenshot({ path: 'test-results/mobile.png', fullPage: true });
+
+  await page.setViewportSize({ width: 320, height: 720 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: 'test-results/mobile-320.png', fullPage: true });
 });
 
 test('compact layer panel keeps a fixed size for four layers', async ({ page }) => {
@@ -144,6 +150,8 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
   expect(rhythmBox).not.toBeNull();
   expect(resonaraBox).not.toBeNull();
   expect(progressionBox).not.toBeNull();
+  expect.soft(Math.abs(instrumentBox!.y - rhythmBox!.y)).toBeLessThanOrEqual(1);
+  expect.soft(Math.abs(instrumentBox!.y - resonaraBox!.y)).toBeLessThanOrEqual(1);
   expect.soft(Math.abs(instrumentBox!.height - rhythmBox!.height)).toBeLessThanOrEqual(1);
   expect(resonaraBox!.x).toBeLessThan(rhythmBox!.x);
   expect(progressionBox!.y).toBeGreaterThan(instrumentBox!.y + instrumentBox!.height);

@@ -345,6 +345,11 @@ dialog hr {
   margin-top: var(--space-lg);
   padding: var(--space-xl);
 }
+@media (min-width: 1181px) {
+  .resonara-panel {
+    margin-top: 0;
+  }
+}
 .drone-selects {
   gap: var(--space-md);
 }

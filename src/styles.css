@@ -176,7 +176,8 @@ h3 {
   letter-spacing: normal;
 }
 .language-select select:focus-visible {
-  outline-offset: 2px;
+  outline: 1px solid var(--muted);
+  outline-offset: 1px;
 }
 .language-control {
   position: relative;
@@ -186,7 +187,7 @@ h3 {
   position: absolute;
   z-index: 1;
   top: 50%;
-  left: 14px;
+  left: var(--space-sm);
   width: 18px;
   height: 12px;
   transform: translateY(-50%);
@@ -198,11 +199,9 @@ h3 {
   background: linear-gradient(to bottom, #fff 0 50%, #dc143c 50%);
 }
 .language-flag-gb {
-  background:
-    linear-gradient(90deg, transparent 42%, #fff 42% 58%, transparent 58%),
-    linear-gradient(0deg, transparent 42%, #fff 42% 58%, transparent 58%),
-    linear-gradient(90deg, transparent 47%, #c8102e 47% 53%, transparent 53%),
-    linear-gradient(0deg, transparent 47%, #c8102e 47% 53%, transparent 53%), #012169;
+  width: 20px;
+  height: 10px;
+  background: #012169 url('./assets/flag-gb.svg') center / cover no-repeat;
 }
 .language-flag-de {
   background: linear-gradient(to bottom, #111 0 33%, #d00 33% 66%, #ffce00 66%);
