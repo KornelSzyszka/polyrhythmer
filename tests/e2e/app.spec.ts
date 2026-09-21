@@ -240,6 +240,18 @@ test('desktop panels are equal and visible spacing follows the golden scale', as
   expect(spacingViolations).toEqual([]);
 });
 
+test('desktop transport controls share one visual axis', async ({ page }) => {
+  await page.goto('/');
+  const boxes = await page.evaluate(() =>
+    ['.tempo', '.play-controls', '#tap'].map((selector) => {
+      const rect = document.querySelector(selector)!.getBoundingClientRect();
+      return { selector, center: rect.top + rect.height / 2 };
+    }),
+  );
+  const centers = boxes.map(({ center }) => center);
+  expect(Math.max(...centers) - Math.min(...centers)).toBeLessThanOrEqual(1);
+});
+
 test('layer colors and enabled state persist across fixed slots', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Kolor warstwy 1').fill('#ff00aa');

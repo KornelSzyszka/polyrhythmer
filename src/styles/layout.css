@@ -38,9 +38,9 @@
   display: block;
 }
 .transport {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   border-top: 1px solid #333a32;
   padding: 22px 0 18px;
@@ -105,6 +105,7 @@ footer > span:last-child {
     padding: 22px 20px;
   }
   .transport {
+    display: flex;
     flex-wrap: wrap;
     justify-content: center;
   }
