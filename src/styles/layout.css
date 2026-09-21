@@ -12,7 +12,7 @@
 }
 .top-actions {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 16px;
 }
 .workspace {
@@ -148,6 +148,10 @@ footer > span:last-child {
     flex: 1 1 216px;
     min-width: 0;
     justify-content: flex-end;
+  }
+  .language-select {
+    min-width: 0;
+    flex: 1 1 160px;
   }
   .brand {
     font-size: 21px;
