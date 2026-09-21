@@ -51,7 +51,7 @@ dialog {
   color: var(--text);
 }
 .play,
-.developer-actions #save-palette {
+.appearance-actions #save-palette {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);

@@ -8,7 +8,6 @@ export { PREFERENCE_LANGUAGES } from '../i18n';
 export interface PreferencesState {
   version: 1;
   language: Language;
-  developerMode: boolean;
   visualMotion: 'pointer' | 'runners';
   activePaletteId: string;
   palettes: Palette[];
@@ -24,7 +23,6 @@ export { BUILT_IN_PALETTES } from '../theme/palette';
 export const defaultPreferences = (): PreferencesState => ({
   version: 1,
   language: 'en',
-  developerMode: false,
   visualMotion: 'pointer',
   activePaletteId: 'forest',
   palettes: [],
@@ -58,7 +56,6 @@ export const isPreferences = (value: unknown): value is PreferencesState =>
   object(value) &&
   value.version === 1 &&
   PREFERENCE_LANGUAGES.includes(value.language as Language) &&
-  typeof value.developerMode === 'boolean' &&
   ['pointer', 'runners'].includes(String(value.visualMotion)) &&
   typeof value.activePaletteId === 'string' &&
   Array.isArray(value.palettes) &&
@@ -69,7 +66,6 @@ export const isPreferences = (value: unknown): value is PreferencesState =>
     {
       version: 1,
       language: value.language as Language,
-      developerMode: value.developerMode,
       visualMotion: value.visualMotion as PreferencesState['visualMotion'],
       activePaletteId: value.activePaletteId,
       palettes: value.palettes,
@@ -86,7 +82,6 @@ export function loadPreferences(): { preferences: PreferencesState; warning: str
       ? {
           ...value,
           language: 'language' in value ? value.language : 'en',
-          developerMode: 'developerMode' in value ? value.developerMode : false,
           visualMotion: 'visualMotion' in value ? value.visualMotion : 'pointer',
         }
       : value;

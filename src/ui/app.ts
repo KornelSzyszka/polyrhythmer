@@ -175,7 +175,7 @@ export class App {
     const scaleLabel = translateText(scaleDefinition.label, this.preferences.language);
     const scaleDescription = translateText(scaleDefinition.description, this.preferences.language);
     this.root.innerHTML = `<div class="shell">
-      <header class="topbar"><a class="brand" href="./" aria-label="Polyrhythmer — strona główna"><span class="brand-mark">◉</span> polyrhythmer<span class="version">01</span></a><div class="top-actions"><label class="language-select">Język<select id="language" aria-label="Język">${PREFERENCE_LANGUAGES.map((language) => `<option value="${language}" ${selected(language, this.preferences.language)}>${({ pl: 'Polski', en: 'Angielski', de: 'Niemiecki', it: 'Włoski', es: 'Hiszpański', 'pt-BR': 'Portugalski (Brazylia)' } as Record<Language, string>)[language]}</option>`).join('')}</select></label><span id="offline-status" class="offline-badge">● <span>Sesja lokalna</span></span><button id="install" class="quiet" hidden>Zainstaluj ↗</button><button id="update" class="quiet" hidden>Nowa wersja ↻</button><button id="developer-mode" class="quiet" aria-label="Przełącz tryb deweloperski" aria-pressed="${this.preferences.developerMode}">Dev: ${this.preferences.developerMode ? 'wł.' : 'wył.'}</button><button id="developer-settings" class="quiet" aria-label="Palety wyglądu">Palety</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
+      <header class="topbar"><a class="brand" href="./" aria-label="Synesterra — Polyrhythmer"><span class="brand-mark">◉</span><span class="brand-copy"><strong>synesterra</strong><small>polyrhythmer</small></span><span class="version">01</span></a><div class="top-actions"><label class="language-select">Język<select id="language" aria-label="Język">${PREFERENCE_LANGUAGES.map((language) => `<option value="${language}" ${selected(language, this.preferences.language)}>${({ pl: 'Polski', en: 'Angielski', de: 'Niemiecki', it: 'Włoski', es: 'Hiszpański', 'pt-BR': 'Portugalski (Brazylia)' } as Record<Language, string>)[language]}</option>`).join('')}</select></label><button id="appearance-settings" class="quiet" aria-label="Ustawienia wyglądu">Ustawienia wyglądu</button><button id="help" class="help" aria-label="Jak korzystać">?</button></div></header>
       <main>
         <div class="workspace">
           <section class="instrument panel" aria-label="Wizualizacja i transport"><div class="panel-top"><span class="section-tag"><i></i> ${steps} wspólnych kroków</span><div class="segmented" aria-label="Widok"><button id="circle" aria-pressed="${s.visualMode === 'circle'}">Okrąg</button><button id="timeline" aria-pressed="${s.visualMode === 'timeline'}">Oś czasu</button><button id="polygons" aria-pressed="${s.visualMode === 'polygons'}">Wielokąty</button></div></div>
@@ -239,8 +239,8 @@ export class App {
             `<div class="note-style"><strong>${notes[index]}</strong><label><span>Kolor</span><input id="note-color-${index}" data-note-index="${index}" type="color" value="${style.color}" aria-label="Kolor nuty ${notes[index]}"></label><label><span>Barwa</span><select id="note-timbre-${index}" data-note-index="${index}" aria-label="Barwa nuty ${notes[index]}">${NOTE_TIMBRES.map((timbre) => `<option value="${timbre}" ${selected(style.timbre, timbre)}>${timbreNames[timbre]}</option>`).join('')}</select></label></div>`,
         )
         .join('')}</div></details></dialog>
-      <dialog id="progression-dialog"><button id="close-progression" class="close-dialog" aria-label="Zamknij ustawienia akordu">×</button><p class="eyebrow">PROGRESJA</p><h2 id="progression-dialog-title">Dodaj akord</h2><p>Wybierz starting step, ton i akord dostępny w aktualnej skali.</p><label class="progression-dialog-field" for="progression-dialog-step">STARTING STEP<select id="progression-dialog-step">${Array.from({ length: steps }, (_, step) => `<option value="${step}">${step}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-root">TON AKORDU<select id="progression-dialog-root">${notes.map((note, noteIndex) => `<option value="${noteIndex}">${note}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-chord">AKORD<select id="progression-dialog-chord">${scaleDefinition.chords.map((chord) => `<option value="${chord}">${chordNames[chord]}</option>`).join('')}</select></label><div class="developer-actions"><button id="save-progression" type="button">Ustaw akord</button></div></dialog>
-      <dialog id="developer-dialog"><button id="close-developer" class="close-dialog" aria-label="Zamknij ustawienia palet">×</button><p class="eyebrow">USTAWIENIA PALET</p><h2>Palety wyglądu</h2><p class="developer-copy">Wybierz paletę, aby jej użyć i załadować kolory do edytora. Palety zapisują się lokalnie.</p><div class="palette-list">${paletteRows}</div><hr><h3 id="palette-form-title">Nowa paleta</h3><label class="developer-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><div class="palette-colors">${paletteColorKeys.map((key) => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><div class="developer-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></dialog>
+      <dialog id="progression-dialog"><button id="close-progression" class="close-dialog" aria-label="Zamknij ustawienia akordu">×</button><p class="eyebrow">PROGRESJA</p><h2 id="progression-dialog-title">Dodaj akord</h2><p>Wybierz starting step, ton i akord dostępny w aktualnej skali.</p><label class="progression-dialog-field" for="progression-dialog-step">STARTING STEP<select id="progression-dialog-step">${Array.from({ length: steps }, (_, step) => `<option value="${step}">${step}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-root">TON AKORDU<select id="progression-dialog-root">${notes.map((note, noteIndex) => `<option value="${noteIndex}">${note}</option>`).join('')}</select></label><label class="progression-dialog-field" for="progression-dialog-chord">AKORD<select id="progression-dialog-chord">${scaleDefinition.chords.map((chord) => `<option value="${chord}">${chordNames[chord]}</option>`).join('')}</select></label><div class="appearance-actions"><button id="save-progression" type="button">Ustaw akord</button></div></dialog>
+      <dialog id="appearance-dialog"><button id="close-appearance" class="close-dialog" aria-label="Zamknij ustawienia wyglądu">×</button><p class="eyebrow">USTAWIENIA WYGLĄDU</p><h2>Palety i presety</h2><p class="appearance-copy">Tutaj ustalisz wszystkie palety Synesterry: wygląd strony, kolory warstw i dźwięków oraz zapisane presety.</p><div class="palette-list">${paletteRows}</div><hr><h3 id="palette-form-title">Nowa paleta</h3><label class="appearance-field" for="palette-name">Nazwa<input id="palette-name" maxlength="32" value=""></label><div class="palette-colors">${paletteColorKeys.map((key) => `<label>${paletteColorNames[key]}<input id="palette-${key}" type="color" value="${key === 'accent' ? '#e4b46a' : key === 'text' ? '#eae9df' : key === 'muted' ? '#a0a89e' : key === 'border' ? '#333a32' : key === 'surface' ? '#1a1f1a' : '#111512'}"></label>`).join('')}</div><div class="appearance-actions"><button id="save-palette" type="button">Zapisz paletę</button><button id="cancel-palette-edit" type="button" class="quiet" hidden>Anuluj edycję</button></div></dialog>
     </div>`;
     this.updateTransport();
     translateDom(this.root, this.preferences.language);
@@ -293,8 +293,8 @@ export class App {
     ) as unknown as PaletteColors;
     return { name, colors };
   }
-  private openDeveloperSettings() {
-    (this.root.querySelector('#developer-dialog') as HTMLDialogElement).showModal();
+  private openAppearanceSettings() {
+    (this.root.querySelector('#appearance-dialog') as HTMLDialogElement).showModal();
   }
   private openProgressionStep(index: number) {
     const step = progressionFor(this.state)[index];
@@ -374,15 +374,15 @@ export class App {
     this.state.drone.progression = progression;
     this.commit();
   }
-  private refreshDeveloperSettings() {
+  private refreshAppearanceSettings() {
     this.render();
-    this.openDeveloperSettings();
+    this.openAppearanceSettings();
   }
   private selectPalette(palette: Palette) {
     this.preferences.activePaletteId = palette.id;
     this.saveAppearancePreferences();
     this.render();
-    this.openDeveloperSettings();
+    this.openAppearanceSettings();
     this.loadPaletteIntoEditor(palette);
   }
   private loadPaletteIntoEditor(palette: Palette) {
@@ -430,7 +430,7 @@ export class App {
     }
     this.editingPaletteId = null;
     this.saveAppearancePreferences();
-    this.refreshDeveloperSettings();
+    this.refreshAppearanceSettings();
   }
   private deletePalette(id: string) {
     if (isBuiltInPalette(id)) return;
@@ -438,7 +438,7 @@ export class App {
     if (this.preferences.activePaletteId === id) this.preferences.activePaletteId = 'forest';
     this.editingPaletteId = null;
     this.saveAppearancePreferences();
-    this.refreshDeveloperSettings();
+    this.refreshAppearanceSettings();
   }
   private updateTransport() {
     const playing = this.engine.clock.running;
@@ -604,23 +604,18 @@ export class App {
       case 'save-progression':
         this.saveProgressionStep();
         break;
-      case 'developer-settings':
-        this.openDeveloperSettings();
+      case 'appearance-settings':
+        this.openAppearanceSettings();
         break;
-      case 'developer-mode':
-        this.preferences.developerMode = !this.preferences.developerMode;
-        this.saveAppearancePreferences();
-        this.render();
-        break;
-      case 'close-developer':
-        (this.root.querySelector('#developer-dialog') as HTMLDialogElement).close();
+      case 'close-appearance':
+        (this.root.querySelector('#appearance-dialog') as HTMLDialogElement).close();
         break;
       case 'save-palette':
         this.savePalette();
         break;
       case 'cancel-palette-edit':
         this.editingPaletteId = null;
-        this.refreshDeveloperSettings();
+        this.refreshAppearanceSettings();
         break;
     }
   }

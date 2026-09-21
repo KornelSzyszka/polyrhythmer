@@ -20,7 +20,7 @@ test('English is the default and each supported language persists without pausin
     (await page.getByRole('dialog').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
   expect(helpArtifacts).toEqual([]);
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Appearance palettes' }).click();
+  await page.getByRole('button', { name: 'Appearance settings' }).click();
   const paletteArtifacts =
     (await page.getByRole('dialog').innerText()).match(/[^\n]*[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ][^\n]*/g) ?? [];
   expect(paletteArtifacts).toEqual([]);

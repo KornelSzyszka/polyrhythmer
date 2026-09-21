@@ -204,17 +204,17 @@ dialog p + p {
 .master {
   gap: var(--space-md);
 }
-.developer-copy {
+.appearance-copy {
   margin: var(--space-md) 0 var(--space-lg);
 }
-.developer-field {
+.appearance-field {
   margin: var(--space-md) 0;
 }
-.developer-field input,
-.developer-field select {
+.appearance-field input,
+.appearance-field select {
   margin-top: var(--space-sm);
 }
-.developer-field input:not([type='color']) {
+.appearance-field input:not([type='color']) {
   padding: 0 var(--space-md);
 }
 .palette-list {
@@ -236,11 +236,11 @@ dialog p + p {
   margin-top: var(--space-xs);
   padding: var(--space-3xs);
 }
-.developer-actions {
+.appearance-actions {
   gap: var(--space-sm);
   margin-top: var(--space-lg);
 }
-.developer-actions button {
+.appearance-actions button {
   padding: var(--space-sm) var(--space-md);
 }
 dialog {

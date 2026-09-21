@@ -23,6 +23,7 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'wył.': 'off',
     'wł.': 'on',
     Palety: 'Palettes',
+    'Ustawienia wyglądu': 'Appearance settings',
     'Jak korzystać': 'How it works',
     'MAŁE LABORATORIUM RYTMU': 'SMALL RHYTHM LAB',
     'SESJA / 001': 'SESSION / 001',
@@ -153,6 +154,11 @@ const translations: Record<Exclude<Language, 'pl'>, Record<string, string>> = {
     'Ustawienia zapisują się na tym urządzeniu. Gdy zobaczysz „Gotowy offline”, możesz wrócić bez internetu. Do instalacji na iOS wybierz Udostępnij → Do ekranu początkowego. System może zatrzymać dźwięk w tle lub po zablokowaniu ekranu.':
       'Settings are saved on this device. When you see “Offline ready”, you can return without an internet connection. On iOS, choose Share → Add to Home Screen to install. The system may stop audio in the background or after the screen is locked.',
     'Zamknij pomoc': 'Close help',
+    'Zamknij ustawienia wyglądu': 'Close appearance settings',
+    'USTAWIENIA WYGLĄDU': 'APPEARANCE SETTINGS',
+    'Palety i presety': 'Palettes and presets',
+    'Tutaj ustalisz wszystkie palety Synesterry: wygląd strony, kolory warstw i dźwięków oraz zapisane presety.':
+      'Set every Synesterra palette here: page appearance, layer and sound colours, and saved presets.',
     'USTAWIENIA PALET': 'PALETTE SETTINGS',
     'Palety wyglądu': 'Appearance palettes',
     'Wybierz paletę, aby jej użyć i załadować kolory do edytora. Palety zapisują się lokalnie.':

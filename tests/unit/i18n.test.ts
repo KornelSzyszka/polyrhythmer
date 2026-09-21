@@ -22,7 +22,7 @@ describe('language preferences', () => {
     expect(translateText('uderzeń / cykl', 'en')).toBe('beats / cycle');
     expect(translateText('30 wspólnych kroków ↗', 'en')).toBe('30 common steps ↗');
     expect(translateText('SESJA / 001', 'en')).toBe('SESSION / 001');
-    expect(translateText('Tryb lokalny', 'en')).toBe('Local mode');
+    expect(translateText('Ustawienia wyglądu', 'en')).toBe('Appearance settings');
     expect(translateText('CYKL 01', 'en')).toBe('CYCLE 01');
     expect(translateText('Zaawansowane ustawienia', 'en')).toBe('Advanced settings');
     expect(translateText('Zamknij zaawansowane ustawienia', 'en')).toBe('Close advanced settings');

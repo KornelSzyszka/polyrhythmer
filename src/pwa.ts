@@ -1,13 +1,7 @@
 import { PREFERENCE_LANGUAGES, translateText, type Language } from './i18n';
 
-interface InstallEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: string }>;
-}
 export function setupPwa(isPlaying: () => boolean, stop: () => void) {
-  let ready = false;
   let waiting: ServiceWorker | null = null;
-  let install: InstallEvent | null = null;
   let updating = false;
   const text = (value: string) =>
     translateText(
@@ -17,42 +11,14 @@ export function setupPwa(isPlaying: () => boolean, stop: () => void) {
         : 'en',
     );
   const refresh = () => {
-    const status = document.querySelector('#offline-status span');
-    if (status)
-      status.textContent = text(
-        ready
-          ? navigator.onLine
-            ? 'Gotowy offline'
-            : 'Tryb offline'
-          : import.meta.env.DEV
-            ? 'Tryb lokalny'
-            : 'Przygotowanie offline',
-      );
-    const button = document.querySelector<HTMLButtonElement>('#install');
-    if (button) button.hidden = !install;
     const update = document.querySelector<HTMLButtonElement>('#update');
     if (update) update.hidden = !waiting;
   };
   document.addEventListener('app-render', refresh);
   window.addEventListener('online', refresh);
   window.addEventListener('offline', refresh);
-  window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();
-    install = event as InstallEvent;
-    refresh();
-  });
-  window.addEventListener('appinstalled', () => {
-    install = null;
-    refresh();
-  });
   document.addEventListener('click', async (event) => {
     const button = (event.target as HTMLElement).closest('button');
-    if (button?.id === 'install' && install) {
-      await install.prompt();
-      await install.userChoice;
-      install = null;
-      refresh();
-    }
     if (button?.id === 'update' && waiting) {
       if (isPlaying()) {
         document.querySelector('#message')!.textContent = text(
@@ -87,11 +53,7 @@ export function setupPwa(isPlaying: () => boolean, stop: () => void) {
       return navigator.serviceWorker.ready;
     })
     .then(() => {
-      ready = true;
       refresh();
     })
-    .catch(() => {
-      const status = document.querySelector('#offline-status span');
-      if (status) status.textContent = text('Offline niedostępny');
-    });
+    .catch(() => undefined);
 }

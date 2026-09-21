@@ -8,7 +8,6 @@ test.beforeEach(async ({ page }) => {
         JSON.stringify({
           version: 1,
           language: 'pl',
-          developerMode: false,
           visualMotion: 'pointer',
           activePaletteId: 'forest',
           palettes: [],
@@ -22,6 +21,10 @@ test('complete practice session persists and works offline', async ({ page, cont
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.locator('.intro')).toHaveCount(0);
+  await expect(page.locator('.brand')).toContainText('synesterra');
+  await expect(page.locator('.brand')).toContainText('polyrhythmer');
+  await expect(page.locator('#offline-status, #install, #developer-mode')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Ustawienia wyglądu' })).toBeVisible();
   await expect(page.locator('.section-tag')).toContainText('6 wspólnych kroków');
   await page.getByRole('button', { name: '5:4', exact: true }).click();
   await page.getByLabel('TEMPO', { exact: true }).fill('120');
@@ -35,7 +38,6 @@ test('complete practice session persists and works offline', async ({ page, cont
   await page.getByRole('button', { name: 'Oś czasu', exact: true }).click();
   await page.getByRole('button', { name: 'Pauza', exact: true }).click();
   await expect(page.locator('#transport-status')).toContainText('Pauza');
-  await expect(page.locator('#offline-status')).toContainText('Gotowy offline');
   await page.reload();
   await expect(page.locator('#bpm')).toHaveValue('120');
   await expect(page.getByRole('switch', { name: 'Dron tonalny' })).toHaveAttribute(
@@ -46,7 +48,6 @@ test('complete practice session persists and works offline', async ({ page, cont
   await expect(page.getByRole('button', { name: 'Start', exact: true })).toBeVisible();
   await context.setOffline(true);
   await page.reload();
-  await expect(page.locator('#offline-status')).toContainText('Tryb offline');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
   await expect(page.locator('#transport-status')).toContainText('Odtwarzanie');
   await page.getByRole('button', { name: 'Stop', exact: true }).click();
@@ -357,7 +358,6 @@ test('legacy appearance preferences default safely to the pointer', async ({ pag
       JSON.stringify({
         version: 1,
         language: 'pl',
-        developerMode: true,
         activePaletteId: 'forest',
         palettes: [],
       }),
@@ -368,29 +368,20 @@ test('legacy appearance preferences default safely to the pointer', async ({ pag
     'aria-pressed',
     'true',
   );
-  await expect(page.getByRole('button', { name: 'Przełącz tryb deweloperski' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
 });
 
-test('developer palettes persist and do not interrupt transport', async ({ page }) => {
+test('appearance palettes persist and do not interrupt transport', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Palety wyglądu' })).toBeVisible();
-  await page.getByRole('button', { name: 'Przełącz tryb deweloperski' }).click();
-  await expect(page.getByRole('button', { name: 'Przełącz tryb deweloperski' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await page.getByRole('button', { name: 'Palety wyglądu' }).click();
+  await expect(page.getByRole('button', { name: 'Ustawienia wyglądu' })).toBeVisible();
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
   await page.locator('#palette-name').fill('Moja paleta');
   await page.locator('#palette-accent').fill('#ff00aa');
   await page.getByRole('button', { name: 'Zapisz paletę' }).click();
   await expect(page.getByRole('button', { name: 'Pauza', exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-palette', /^custom-/);
   await page.reload();
-  await page.getByRole('button', { name: 'Palety wyglądu' }).click();
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
   const customRow = page.locator('.palette-row').filter({ hasText: 'Moja paleta' });
   await expect(customRow).toBeVisible();
   await customRow.getByRole('button', { name: 'Wybierz paletę Moja paleta' }).click();
@@ -412,7 +403,7 @@ test('high-contrast palette updates CSS and SVG without interrupting playback', 
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Start', exact: true }).click();
-  await page.getByRole('button', { name: 'Palety wyglądu' }).click();
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
   await page.getByRole('button', { name: 'Wybierz paletę Wysoki kontrast' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'high-contrast');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(0, 0, 0)');
@@ -422,7 +413,7 @@ test('high-contrast palette updates CSS and SVG without interrupting playback', 
 
 test('palette names ask before overwriting an existing custom palette', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Palety wyglądu' }).click();
+  await page.getByRole('button', { name: 'Ustawienia wyglądu' }).click();
   await page.locator('#palette-name').fill('Duplikat');
   await page.locator('#palette-accent').fill('#112233');
   await page.getByRole('button', { name: 'Zapisz paletę' }).click();

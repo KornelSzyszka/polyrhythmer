@@ -225,7 +225,6 @@ describe('palette preferences', () => {
   it('accepts defaults and a valid custom palette', () => {
     const preferences = defaultPreferences();
     expect(preferences.visualMotion).toBe('pointer');
-    preferences.developerMode = true;
     preferences.visualMotion = 'runners';
     preferences.palettes.push({
       id: 'custom-night',

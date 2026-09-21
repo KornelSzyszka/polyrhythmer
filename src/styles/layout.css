@@ -155,10 +155,6 @@ footer > span:last-child {
   .top-actions {
     gap: 10px;
   }
-  .offline-badge {
-    padding: 6px 8px;
-    font-size: 9px;
-  }
   .workspace {
     grid-template-columns: 1fr;
   }
@@ -222,9 +218,6 @@ footer > span:last-child {
   }
   .quiet {
     font-size: 9px;
-  }
-  .top-actions:has(.quiet:not([hidden])) .offline-badge {
-    display: none;
   }
 }
 @media (max-width: 390px) {
