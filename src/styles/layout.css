@@ -339,12 +339,15 @@ footer > span:last-child {
 }
 .rhythm-panel .layer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-columns: 94px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 8px 0;
 }
 .rhythm-panel .beat-stepper {
+  grid-column: 1 / -1;
+  width: 132px;
+  justify-self: center;
   gap: 4px;
 }
 .rhythm-panel .beat-stepper button {

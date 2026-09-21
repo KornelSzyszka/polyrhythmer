@@ -1150,7 +1150,7 @@ dialog::backdrop {
   letter-spacing: 0.7px;
 }
 .layer-color input[type='color'] {
-  width: 38px;
+  width: 46px;
   height: 30px;
   padding: 2px;
   border-color: color-mix(in srgb, var(--layer) 45%, var(--border));

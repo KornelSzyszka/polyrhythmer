@@ -113,6 +113,30 @@ test('compact layer panel keeps a fixed size for four layers', async ({ page }) 
   await expect(panel.getByLabel(/Wycisz warstwę/)).toHaveCount(0);
   await expect(panel.getByLabel(/Solo warstwy/)).toHaveCount(0);
   await expect(panel.getByRole('switch')).toHaveCount(4);
+  expect(
+    await panel
+      .locator('.layer')
+      .first()
+      .evaluate((layer) => {
+        const color = layer.querySelector('.layer-color');
+        const stepper = layer.querySelector('.beat-stepper');
+        return color?.parentElement === layer && stepper?.parentElement === layer;
+      }),
+  ).toBe(true);
+  await expect(panel.locator('.layer-color input[type="color"]').first()).toHaveCSS(
+    'width',
+    '46px',
+  );
+  expect(
+    await panel
+      .locator('.layer')
+      .first()
+      .evaluate((layer) => {
+        const layerBox = layer.getBoundingClientRect();
+        const stepperBox = layer.querySelector('.beat-stepper')!.getBoundingClientRect();
+        return Math.abs(layerBox.x + layerBox.width / 2 - (stepperBox.x + stepperBox.width / 2));
+      }),
+  ).toBeLessThanOrEqual(1);
   await expect(panel.getByRole('button', { name: 'Dodaj warstwę' })).toHaveCount(0);
   await expect(panel.getByLabel(/Usuń warstwę/)).toHaveCount(0);
   const firstLayerBox = await page.locator('.layer').first().boundingBox();
